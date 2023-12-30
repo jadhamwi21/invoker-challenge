@@ -27,7 +27,7 @@ func (Repo *AuthRepo) CreateNewPlayer(newPlayer *models.NewPlayer) error {
 		return fiber.NewError(fiber.StatusConflict, "Player with this username already exists")
 	}
 
-	player := &models.BasePlayer{Friends: []primitive.ObjectID{}, Matches: []primitive.ObjectID{}, Username: newPlayer.Username, Password: newPlayer.Password, FirstName: newPlayer.FirstName, LastName: newPlayer.LastName, Email: newPlayer.Email}
+	player := &models.BasePlayer{Friends: []primitive.ObjectID{}, Matches: []primitive.ObjectID{}, Username: newPlayer.Username, Password: newPlayer.Password, FirstName: newPlayer.FirstName, LastName: newPlayer.LastName, Email: newPlayer.Email, ID: primitive.NewObjectID()}
 
 	collection.InsertOne(context.Background(), player)
 	return nil

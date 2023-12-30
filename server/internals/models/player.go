@@ -6,6 +6,7 @@ import (
 )
 
 type BasePlayer struct {
+	ID        primitive.ObjectID   `bson:"_id"`
 	Username  string               `bson:"username"`
 	FirstName string               `bson:"firstname"`
 	LastName  string               `bson:"lastname"`

@@ -1,8 +1,6 @@
 package players
 
 import (
-	"log"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -20,8 +18,7 @@ func (Controller *PlayersController) GetPlayersHandler(c *fiber.Ctx) error {
 	username := c.Locals("username").(string)
 	players, err := Controller.Repo.FindPlayersByQuery(query, username)
 	if err != nil {
-		log.Fatal(err)
 		return err
 	}
-	return c.JSON(players)
+	return c.Status(fiber.StatusOK).JSON(players)
 }

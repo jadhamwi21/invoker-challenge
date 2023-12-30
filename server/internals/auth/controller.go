@@ -34,7 +34,7 @@ func (Controller *AuthController) SignupHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(fiber.Map{"code": fiber.StatusOK})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"code": fiber.StatusOK})
 
 }
 
@@ -54,12 +54,12 @@ func (Controller *AuthController) LoginHandler(c *fiber.Ctx) error {
 		return err
 	}
 	c.Cookie(&fiber.Cookie{Name: "jwt", Value: token, HTTPOnly: true})
-	return c.JSON(fiber.Map{"code": fiber.StatusOK})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"code": fiber.StatusOK})
 
 }
 
 func (Controller *AuthController) LogoutHandler(c *fiber.Ctx) error {
 	c.ClearCookie("jwt")
-	return c.JSON(fiber.Map{"code": fiber.StatusOK})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"code": fiber.StatusOK})
 
 }
