@@ -1,0 +1,29 @@
+.spell {
+	height: 30px;
+	width: 30px;
+}
+
+.wrapper {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 2em;
+}
+
+.wrapper img {
+	height: 30px;
+	width: 30px;
+	border-radius: 6px;
+}
+
+.wrapper h4 {
+	color: var(--blue);
+	flex: 1;
+	font-size: 14px;
+}
+
+.wrapper > div {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 0.5em;
+}

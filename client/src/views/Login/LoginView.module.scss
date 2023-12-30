@@ -1,0 +1,37 @@
+.container {
+	height: 100vh;
+	width: 100%;
+	display: grid;
+	place-items: center;
+	overflow-y: auto;
+}
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+	background-color: rgb(7, 7, 7);
+	padding: 1em;
+	border-radius: 6px;
+	width: 30vw;
+	color: var(--gray);
+	gap: 1.5em;
+}
+
+.wrapper > *:last-child {
+	align-self: flex-end;
+}
+
+.header {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 1em;
+}
+
+.header h3 {
+	color: var(--blue);
+	font-weight: 200;
+}

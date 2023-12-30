@@ -1,0 +1,38 @@
+@font-face {
+	font-family: "Lucon";
+	src: url("./assets/fonts/lucon.ttf");
+}
+
+:root {
+	--black: rgb(11, 11, 11);
+	--gray: #f0f0f0;
+	--blue: #83a4e5;
+	--green: #3ce568;
+	--red: #bd0000;
+}
+
+* {
+	box-sizing: border-box;
+	font-family: "Lucon";
+}
+
+body {
+	margin: 0;
+	padding: 0;
+
+	background-color: var(--black);
+	width: 100%;
+	overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+	width: 5px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--blue);
+}

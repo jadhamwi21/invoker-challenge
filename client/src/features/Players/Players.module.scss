@@ -1,0 +1,14 @@
+.loader_wrapper {
+	height: 100%;
+	width: 100%;
+	display: grid;
+	place-items: center;
+}
+
+.no_results {
+	height: 80vh;
+	width: 100%;
+	display: grid;
+	place-items: center;
+	color: var(--red);
+}

@@ -1,0 +1,37 @@
+.keyContainer {
+	position: relative;
+	border-radius: 6px;
+
+	color: var(--black);
+
+	height: 50px;
+	width: 50px;
+	display: grid;
+	place-items: center;
+}
+
+.keyImage {
+	position: absolute;
+	top: 0;
+	left: 0;
+	opacity: 0.2;
+	z-index: 2;
+	height: 100%;
+	width: 100%;
+	border-radius: 6px;
+}
+
+.keyDown {
+	opacity: 0.4;
+}
+
+.keyUp {
+	opacity: 0.2;
+}
+
+.keyText {
+	z-index: 5;
+	color: var(--gray);
+	padding: 0;
+	margin: 0;
+}

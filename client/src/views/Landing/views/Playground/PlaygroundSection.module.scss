@@ -1,0 +1,16 @@
+.container {
+	width: 100%;
+	background-color: var(--black);
+	padding: 2.5em;
+}
+
+.header {
+	color: var(--blue);
+}
+
+.subheader {
+	color: var(--gray);
+	padding-bottom: 1em;
+	border-bottom: solid 1px var(--blue);
+	width: fit-content;
+}
