@@ -57,3 +57,9 @@ func (Controller *AuthController) LoginHandler(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"code": fiber.StatusOK})
 
 }
+
+func (Controller *AuthController) LogoutHandler(c *fiber.Ctx) error {
+	c.ClearCookie("jwt")
+	return c.JSON(fiber.Map{"code": fiber.StatusOK})
+
+}

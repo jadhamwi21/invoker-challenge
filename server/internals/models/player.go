@@ -32,3 +32,11 @@ type PlayerClaims struct {
 	Username string `json:"username"`
 	jwt.MapClaims
 }
+
+type ApiPlayer struct {
+	Username  string   `json:"username"`
+	FirstName string   `json:"firstname"`
+	LastName  string   `json:"lastname"`
+	Friends   []Friend `json:"friends"`
+	Matches   []Match  `json:"matches"`
+}

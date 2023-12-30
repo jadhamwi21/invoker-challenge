@@ -10,9 +10,10 @@ func AddAuthRoutes(app *fiber.App, db *mongo.Database) {
 	repo := NewAuthRepo(db)
 	controller := NewAuthController(repo)
 
-	routers := app.Group("/auth")
+	router := app.Group("/auth")
 
-	routers.Post("/signup", controller.SignupHandler)
-	routers.Post("/login", controller.LoginHandler)
+	router.Post("/signup", controller.SignupHandler)
+	router.Post("/login", controller.LoginHandler)
+	router.Post("/logout", Protected, controller.LogoutHandler)
 
 }
