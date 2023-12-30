@@ -13,5 +13,6 @@ func AddAuthRoutes(app *fiber.App, db *mongo.Database) {
 	routers := app.Group("/auth")
 
 	routers.Post("/signup", controller.SignupHandler)
+	routers.Post("/login", controller.LoginHandler)
 
 }

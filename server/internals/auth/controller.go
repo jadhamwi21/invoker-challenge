@@ -3,6 +3,7 @@ package auth
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/jadhamwi21/invoker-challenge/internals/models"
 	"github.com/jadhamwi21/invoker-challenge/internals/validation"
 )
 
@@ -14,26 +15,45 @@ func NewAuthController(repo *AuthRepo) *AuthController {
 	return &AuthController{Repo: repo}
 }
 
-type SignupBody struct {
-	Username  string `json:"username" validate:"required"`
-	FirstName string `json:"firstname" validate:"required"`
-	LastName  string `json:"lastname" validate:"required"`
-	Password  string `json:"password" validate:"required"`
-	Email     string `json:"email" validate:"required"`
-}
-
-func (controller *AuthController) SignupHandler(c *fiber.Ctx) error {
-	body := &SignupBody{}
+func (Controller *AuthController) SignupHandler(c *fiber.Ctx) error {
+	body := &models.NewPlayer{}
 
 	if err := c.BodyParser(body); err != nil {
 		return err
 	}
-	validate := validator.New()
 
+	validate := validator.New()
 	if err := validate.Struct(body); err != nil {
-		return c.JSON(fiber.Map{"status": fiber.StatusBadRequest, "errors": validation.FormatValidationError(err)})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": fiber.StatusBadRequest, "error": validation.FormatValidationError(err)})
+	}
+	validEmail := validation.ValidateEmail(body.Email)
+	if !validEmail {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": fiber.StatusBadRequest, "error": "Invalid email"})
+	}
+	err := Controller.Repo.CreateNewPlayer(body)
+	if err != nil {
+		return err
+	}
+	return c.JSON(fiber.Map{"code": fiber.StatusOK})
+
+}
+
+func (Controller *AuthController) LoginHandler(c *fiber.Ctx) error {
+	body := &models.PlayerLoginCredentials{}
+
+	if err := c.BodyParser(body); err != nil {
+		return err
 	}
 
-	return c.JSON(fiber.Map{"status": "OK"})
+	validate := validator.New()
+	if err := validate.Struct(body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": fiber.StatusBadRequest, "error": validation.FormatValidationError(err)})
+	}
+	token, err := Controller.Repo.AuthenticatePlayer(body)
+	if err != nil {
+		return err
+	}
+	c.Cookie(&fiber.Cookie{Name: "jwt", Value: token, HTTPOnly: true})
+	return c.JSON(fiber.Map{"code": fiber.StatusOK})
 
 }

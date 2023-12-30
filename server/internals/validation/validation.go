@@ -8,9 +8,12 @@ import (
 )
 
 func formatTag(field string, tag string) string {
+	field = strings.ToLower(field)
 	switch tag {
 	case "required":
 		return fmt.Sprintf("%v is required", field)
+	case "min":
+		return fmt.Sprintf("invalid %v length", field)
 	}
 	return ""
 }
