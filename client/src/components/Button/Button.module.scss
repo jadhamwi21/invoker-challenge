@@ -8,6 +8,12 @@
 	outline: none;
 }
 
+.button:disabled {
+	pointer-events: none;
+	cursor: none;
+	opacity: 0.3;
+}
+
 .primary {
 	background-color: transparent;
 	color: var(--blue);
@@ -25,4 +31,12 @@
 	&:hover {
 		background-color: rgba(255, 255, 255, 0.05);
 	}
+}
+
+.submitting_primary {
+	background-color: #647eb0;
+	color: var(--black);
+}
+.submitting_secondary {
+	background-color: rgba(255, 255, 255, 0.05);
 }

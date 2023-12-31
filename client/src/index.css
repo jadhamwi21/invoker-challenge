@@ -9,6 +9,11 @@
 	--blue: #83a4e5;
 	--green: #3ce568;
 	--red: #bd0000;
+	--toastify-color-dark: black !important;
+	--toastify-color-success: var(--green);
+	--toastify-color-warning: #f1c40f;
+	--toastify-color-error: var(--red);
+	--toastify-color-transparent: rgba(255, 255, 255, 0.7);
 }
 
 * {
