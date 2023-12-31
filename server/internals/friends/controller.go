@@ -15,10 +15,10 @@ func NewFriendsController(repo *FriendsRepo) *FriendsController {
 	return &FriendsController{Repo: repo}
 }
 
-func (Controller *FriendsController) NewFriendHandler(c *fiber.Ctx) error {
+func (Controller *FriendsController) NewFriendRequestHandler(c *fiber.Ctx) error {
 
 	username := c.Locals("username").(string)
-	friend := &models.NewFriend{}
+	friend := &models.NewFriendRequest{}
 	if err := c.BodyParser(friend); err != nil {
 		return err
 	}
@@ -27,9 +27,20 @@ func (Controller *FriendsController) NewFriendHandler(c *fiber.Ctx) error {
 	if err := validate.Struct(friend); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": fiber.StatusBadRequest, "error": validation.FormatValidationError(err)})
 	}
-	err := Controller.Repo.AddNewFriend(username, friend.Username)
+	err := Controller.Repo.FriendRequest(username, friend.Username)
 	if err != nil {
 		return err
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"code": fiber.StatusOK, "message": "friend added"})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"code": fiber.StatusOK, "message": "friend request sent"})
+}
+
+func (Controller *FriendsController) AcceptRequestHandler(c *fiber.Ctx) error {
+
+	username := c.Locals("username").(string)
+	requestId := c.Params("id")
+	err := Controller.Repo.AcceptFriendRequest(username, requestId)
+	if err != nil {
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"code": fiber.StatusOK, "message": "friend request sent"})
 }
