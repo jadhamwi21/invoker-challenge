@@ -3,7 +3,6 @@ package friends
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jadhamwi21/invoker-challenge/internals/models"
@@ -64,7 +63,6 @@ func (Repo *FriendsRepo) FriendRequest(clientUsername string, friendUsername str
 }
 
 func (Repo *FriendsRepo) AcceptFriendRequest(clientUsername string, requestId string) error {
-	fmt.Println(requestId)
 	friendsRequestsCollection := Repo.Db.Collection("friends_requests")
 	requestObjectId, _ := primitive.ObjectIDFromHex(requestId)
 	friendRequest := bson.M{"_id": requestObjectId}
@@ -95,5 +93,34 @@ func (Repo *FriendsRepo) AcceptFriendRequest(clientUsername string, requestId st
 	friendFilter := bson.M{"_id": requesteeId}
 	playersCollection.UpdateOne(context.Background(), clientFilter, bson.M{"$push": bson.M{"friends": requesteeId}})
 	playersCollection.UpdateOne(context.Background(), friendFilter, bson.M{"$push": bson.M{"friends": requesterId}})
+	return nil
+}
+
+func (Repo *FriendsRepo) RejectFriendRequest(clientUsername string, requestId string) error {
+	friendsRequestsCollection := Repo.Db.Collection("friends_requests")
+	requestObjectId, _ := primitive.ObjectIDFromHex(requestId)
+	friendRequest := bson.M{"_id": requestObjectId}
+	request := &models.FriendRequest{}
+	err := friendsRequestsCollection.FindOne(context.Background(), friendRequest).Decode(request)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return fiber.NewError(fiber.StatusNotFound, "request not found")
+		}
+		return err
+	}
+	playersCollection := Repo.Db.Collection("players")
+	client := &models.BasePlayer{}
+	err = playersCollection.FindOne(context.Background(), bson.M{"username": clientUsername}).Decode(client)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return fiber.NewError(fiber.StatusNotFound, "user not found")
+		}
+		return err
+	}
+	if client.ID != request.Requestee {
+		return fiber.NewError(fiber.StatusUnauthorized, "unauthorized to reject this request")
+	}
+	friendsRequestsCollection.DeleteOne(context.Background(), request)
+
 	return nil
 }

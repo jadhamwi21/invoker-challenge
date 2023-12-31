@@ -16,9 +16,10 @@ func NewPlayersRepo(db *mongo.Database) *PlayersRepo {
 	return &PlayersRepo{Db: db}
 }
 
-func (Repo *PlayersRepo) FindPlayersByQuery(query string, excludedUsername string) ([]models.ApiPlayer, error) {
+func (Repo *PlayersRepo) FindPlayersByQuery(query string, excludedUsername string) ([]string, error) {
 
-	players := []models.ApiPlayer{}
+	playersDocs := []models.BasePlayer{}
+	players := []string{}
 	collection := Repo.Db.Collection("players")
 	pipeline := bson.A{
 		bson.M{
@@ -29,8 +30,11 @@ func (Repo *PlayersRepo) FindPlayersByQuery(query string, excludedUsername strin
 	if err != nil {
 		return players, err
 	}
-	if err := cursor.All(context.TODO(), &players); err != nil {
+	if err := cursor.All(context.TODO(), &playersDocs); err != nil {
 		return players, err
+	}
+	for _, player := range playersDocs {
+		players = append(players, player.Username)
 	}
 
 	return players, nil

@@ -34,7 +34,7 @@ func (Controller *FriendsController) NewFriendRequestHandler(c *fiber.Ctx) error
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"code": fiber.StatusOK, "message": "friend request sent"})
 }
 
-func (Controller *FriendsController) AcceptRequestHandler(c *fiber.Ctx) error {
+func (Controller *FriendsController) AcceptFriendRequestHandler(c *fiber.Ctx) error {
 
 	username := c.Locals("username").(string)
 	requestId := c.Params("id")
@@ -43,4 +43,15 @@ func (Controller *FriendsController) AcceptRequestHandler(c *fiber.Ctx) error {
 		return err
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"code": fiber.StatusOK, "message": "friend request sent"})
+}
+
+func (Controller *FriendsController) RejectFriendRequestHandler(c *fiber.Ctx) error {
+
+	username := c.Locals("username").(string)
+	requestId := c.Params("id")
+	err := Controller.Repo.RejectFriendRequest(username, requestId)
+	if err != nil {
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"code": fiber.StatusOK, "message": "friend request rejected"})
 }
