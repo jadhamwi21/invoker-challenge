@@ -1,11 +1,11 @@
 import { PlayersService } from "@/services/PlayersService";
-import { Player } from "@/types/player.types";
+import { PlayerDetails } from "@/types/player.types";
 import { useState } from "react";
 
 export const useFindFriend = () => {
 	const [value, setValue] = useState("");
 	const [finding, setFinding] = useState(false);
-	const [players, setPlayers] = useState<Player[] | null>(null);
+	const [players, setPlayers] = useState<PlayerDetails[] | null>(null);
 	const handleFind = async () => {
 		setFinding(true);
 		const players = await PlayersService.findPlayers(value);

@@ -33,21 +33,22 @@ func (Repo *AuthRepo) CreateNewPlayer(newPlayer *models.NewPlayer) error {
 	return nil
 }
 
-func (Repo *AuthRepo) AuthenticatePlayer(player *models.PlayerLoginCredentials) (string, error) {
+func (Repo *AuthRepo) AuthenticatePlayer(player *models.PlayerLoginCredentials) (*models.PlayerLoginResponse, string, error) {
 	collection := Repo.Db.Collection("players")
 	playerFilter := bson.D{{"username", player.Username}}
 	var basePlayer models.BasePlayer
 	err := collection.FindOne(context.Background(), playerFilter).Decode(&basePlayer)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return "", fiber.NewError(fiber.StatusNotFound, "player with this username is not found")
+			return nil, "", fiber.NewError(fiber.StatusNotFound, "player with this username is not found")
 		}
 	}
 	if player.Password != basePlayer.Password {
-		return "", fiber.NewError(fiber.StatusUnauthorized, "incorrect password")
+		return nil, "", fiber.NewError(fiber.StatusUnauthorized, "incorrect password")
 	}
 
 	token, err := GenerateJwt(&basePlayer)
+	playerResponse := &models.PlayerLoginResponse{FirstName: basePlayer.FirstName, LastName: basePlayer.LastName}
 
-	return token, nil
+	return playerResponse, token, nil
 }

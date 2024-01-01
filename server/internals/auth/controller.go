@@ -49,12 +49,12 @@ func (Controller *AuthController) LoginHandler(c *fiber.Ctx) error {
 	if err := validate.Struct(body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": fiber.StatusBadRequest, "error": validation.FormatValidationError(err)})
 	}
-	token, err := Controller.Repo.AuthenticatePlayer(body)
+	response, token, err := Controller.Repo.AuthenticatePlayer(body)
 	if err != nil {
 		return err
 	}
 	c.Cookie(&fiber.Cookie{Name: "jwt", Value: token, HTTPOnly: true})
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"code": fiber.StatusOK})
+	return c.Status(fiber.StatusOK).JSON(response)
 
 }
 

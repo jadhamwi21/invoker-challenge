@@ -1,13 +1,14 @@
+import { Provider } from "react-redux";
 import { RouterProvider } from "react-router-dom";
-import { router } from "./router";
 import { ToastContainer } from "react-toastify";
-import { AnimatePresence } from "framer-motion";
 import "react-toastify/dist/ReactToastify.css";
+import { store } from "./redux/store";
+import { router } from "./router";
 type Props = {};
 
 const App = (props: Props) => {
 	return (
-		<>
+		<Provider store={store}>
 			<RouterProvider router={router} />
 			<ToastContainer
 				position="top-right"
@@ -16,7 +17,7 @@ const App = (props: Props) => {
 				hideProgressBar
 				closeButton={false}
 			/>
-		</>
+		</Provider>
 	);
 };
 

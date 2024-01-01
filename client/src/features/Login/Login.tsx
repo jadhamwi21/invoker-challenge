@@ -1,9 +1,14 @@
 import InvokerHead from "@/assets/images/InvokerHead.png";
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
-import styles from "./Login.module.scss";
-import * as yup from "yup";
+import Loader from "@/components/Loader/Loader";
+import { useErrorToast } from "@/hooks/useErrorToast";
+import { useLoginPlayerMutation } from "@/redux/apis/auth.api";
 import { useFormik } from "formik";
+import { useNavigate } from "react-router-dom";
+import * as yup from "yup";
+import styles from "./Login.module.scss";
+
 type Props = {};
 
 const schema = yup.object().shape({
@@ -11,16 +16,21 @@ const schema = yup.object().shape({
 	password: yup.string().required("Password is required"),
 });
 const Login = (props: Props) => {
+	const navigate = useNavigate();
+	const [login, { isLoading, error }] = useLoginPlayerMutation();
 	const formik = useFormik({
 		initialValues: {
 			username: "",
 			password: "",
 		},
 		validationSchema: schema,
-		onSubmit: (values) => {
-			console.log(values);
+		onSubmit: async (values) => {
+			await login(values);
+			navigate("/dashboard");
 		},
 	});
+	useErrorToast(error);
+
 	return (
 		<form className={styles.wrapper} onSubmit={formik.handleSubmit}>
 			<div className={styles.header}>
@@ -45,8 +55,13 @@ const Login = (props: Props) => {
 				type="password"
 				error={formik.errors.password}
 			/>
-
-			<Button type="submit">Login</Button>
+			<div className={styles.footer}>
+				{formik.isSubmitting ? (
+					<Loader />
+				) : (
+					<Button type="submit">Login</Button>
+				)}
+			</div>
 		</form>
 	);
 };

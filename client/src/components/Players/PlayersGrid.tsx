@@ -1,8 +1,8 @@
 import React from "react";
 import styles from "./PlayersGrid.module.scss";
-import { Player } from "@/types/player.types";
+import { PlayerDetails } from "@/types/player.types";
 import PlayerItem from "./PlayerItem";
-type Props = { players: Player[] };
+type Props = { players: PlayerDetails[] };
 
 const PlayersGrid = ({ players }: Props) => {
 	return (

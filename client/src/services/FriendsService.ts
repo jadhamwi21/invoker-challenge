@@ -1,9 +1,13 @@
-import { Player } from "@/types/player.types";
+import { PlayerDetails } from "@/types/player.types";
 
-const FRIENDS: Player[] = [{ name: "Jad" }, { name: "Aws" }, { name: "Seif" }];
+const FRIENDS: PlayerDetails[] = [
+	{ name: "Jad" },
+	{ name: "Aws" },
+	{ name: "Seif" },
+];
 
 export class FriendsService {
-	public static getFriends(): Player[] {
+	public static getFriends(): PlayerDetails[] {
 		return FRIENDS;
 	}
 }

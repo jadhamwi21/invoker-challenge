@@ -1,7 +1,7 @@
-import { Player } from "@/types/player.types";
+import { PlayerDetails } from "@/types/player.types";
 import { useNavigate } from "react-router-dom";
 import styles from "./PlayerItem.module.scss";
-type Props = { player: Player };
+type Props = { player: PlayerDetails };
 
 const PlayerItem = ({ player }: Props) => {
 	const navigate = useNavigate();

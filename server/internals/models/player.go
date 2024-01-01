@@ -41,3 +41,8 @@ type ApiPlayer struct {
 	Friends   []Friend `json:"friends"`
 	Matches   []Match  `json:"matches"`
 }
+
+type PlayerLoginResponse struct {
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
+}
