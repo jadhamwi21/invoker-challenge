@@ -6,6 +6,7 @@ export const authApi = createApi({
 	reducerPath: "authApi",
 	baseQuery: fetchBaseQuery({
 		baseUrl: `${import.meta.env.VITE_BASE_URL}/auth/`,
+		credentials: "include",
 	}),
 	endpoints: (builder) => ({
 		loginPlayer: builder.mutation<

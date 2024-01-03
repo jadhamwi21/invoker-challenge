@@ -2,7 +2,9 @@ package players
 
 import (
 	"context"
+	"errors"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/jadhamwi21/invoker-challenge/internals/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -38,4 +40,34 @@ func (Repo *PlayersRepo) FindPlayersByQuery(query string, excludedUsername strin
 	}
 
 	return players, nil
+}
+
+func (Repo *PlayersRepo) GetPlayerInfo(username string) (*models.PlayerInfo, error) {
+
+	basePlayer := &models.BasePlayer{}
+	playersCollection := Repo.Db.Collection("players")
+
+	err := playersCollection.FindOne(context.Background(), bson.M{"username": username}).Decode(basePlayer)
+
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, fiber.NewError(fiber.StatusNotFound, "player with this username is not found")
+		}
+	}
+	friendsNames := []string{}
+	friendsFilter := bson.M{"_id": bson.M{"$in": basePlayer.Friends}}
+	cursor, err := playersCollection.Find(context.Background(), friendsFilter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+	for cursor.Next(context.Background()) {
+		var friend models.BasePlayer
+		if err := cursor.Decode(&friend); err != nil {
+			return nil, err
+		}
+		friendsNames = append(friendsNames, friend.Username)
+	}
+	playerInfo := &models.PlayerInfo{Username: basePlayer.Username, LastName: basePlayer.LastName, FirstName: basePlayer.FirstName, Friends: friendsNames, Matches: []models.Match{}}
+	return playerInfo, nil
 }

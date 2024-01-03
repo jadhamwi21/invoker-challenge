@@ -2,7 +2,6 @@ package auth
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -10,12 +9,8 @@ import (
 var AUTH_ERROR = fiber.NewError(fiber.StatusUnauthorized, "unauthorized")
 
 func Protected(c *fiber.Ctx) error {
-	authHeader := c.Get("Authorization")
-	authHeaderSplitted := strings.Split(authHeader, " ")
-	if len(authHeaderSplitted) != 2 {
-		return AUTH_ERROR
-	}
-	token := authHeaderSplitted[1]
+	token := c.Cookies("jwt")
+	fmt.Println(token)
 	claims, err := ParseToken(token)
 	if err != nil {
 		return AUTH_ERROR

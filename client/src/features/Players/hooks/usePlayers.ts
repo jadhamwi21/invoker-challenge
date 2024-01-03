@@ -1,16 +1,13 @@
-import { PlayersService } from "@/services/PlayersService";
-import { PlayerDetails } from "@/types/player.types";
+import { playersApi, useSearchPlayerQuery } from "@/redux/apis/players.api";
 import { useState } from "react";
 
 export const useFindFriend = () => {
 	const [value, setValue] = useState("");
-	const [finding, setFinding] = useState(false);
-	const [players, setPlayers] = useState<PlayerDetails[] | null>(null);
+	const [trigger, { isLoading, data: players }] =
+		playersApi.useLazySearchPlayerQuery();
+
 	const handleFind = async () => {
-		setFinding(true);
-		const players = await PlayersService.findPlayers(value);
-		setPlayers(players);
-		setFinding(false);
+		trigger(value);
 	};
 
 	const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
@@ -22,5 +19,5 @@ export const useFindFriend = () => {
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) =>
 		setValue(e.target.value);
 
-	return { handleFind, onKeyDown, finding, players, value, onChange };
+	return { handleFind, onKeyDown, isLoading, players, value, onChange };
 };

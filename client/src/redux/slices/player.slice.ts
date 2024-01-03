@@ -12,7 +12,7 @@ const initialState: PlayerState = {
 };
 
 const slice = createSlice({
-	name: "auth",
+	name: "player",
 	initialState,
 	reducers: {},
 	extraReducers: (builder) => {

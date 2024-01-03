@@ -22,3 +22,14 @@ func (Controller *PlayersController) GetPlayersHandler(c *fiber.Ctx) error {
 	}
 	return c.Status(fiber.StatusOK).JSON(players)
 }
+
+func (Controller *PlayersController) GetPlayerInfoHandler(c *fiber.Ctx) error {
+
+	username := c.Params("username")
+
+	info, err := Controller.Repo.GetPlayerInfo(username)
+	if err != nil {
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(info)
+}

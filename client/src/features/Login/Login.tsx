@@ -17,7 +17,7 @@ const schema = yup.object().shape({
 });
 const Login = (props: Props) => {
 	const navigate = useNavigate();
-	const [login, { isLoading, error }] = useLoginPlayerMutation();
+	const [login, { error }] = useLoginPlayerMutation();
 	const formik = useFormik({
 		initialValues: {
 			username: "",
@@ -25,8 +25,12 @@ const Login = (props: Props) => {
 		},
 		validationSchema: schema,
 		onSubmit: async (values) => {
-			await login(values);
-			navigate("/dashboard");
+			try {
+				await login(values).unwrap();
+				navigate("/dashboard");
+			} catch (e) {
+				console.log(e);
+			}
 		},
 	});
 	useErrorToast(error);

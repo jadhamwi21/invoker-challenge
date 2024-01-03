@@ -47,7 +47,8 @@ func (Repo *AuthRepo) AuthenticatePlayer(player *models.PlayerLoginCredentials) 
 		return nil, "", fiber.NewError(fiber.StatusUnauthorized, "incorrect password")
 	}
 
-	token, err := GenerateJwt(&basePlayer)
+	token, _ := GenerateJwt(&basePlayer)
+
 	playerResponse := &models.PlayerLoginResponse{FirstName: basePlayer.FirstName, LastName: basePlayer.LastName}
 
 	return playerResponse, token, nil

@@ -86,7 +86,7 @@ func (Repo *FriendsRepo) AcceptFriendRequest(clientUsername string, requestId st
 
 	requesteeId := request.Requestee
 	requesterId := request.Requester
-	if client.ID != requesterId {
+	if client.ID != requesteeId {
 		return fiber.NewError(fiber.StatusUnauthorized, "unauthorized to accept this request")
 	}
 	clientFilter := bson.M{"_id": requesterId}

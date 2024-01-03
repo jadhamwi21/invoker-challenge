@@ -46,3 +46,11 @@ type PlayerLoginResponse struct {
 	FirstName string `json:"firstname"`
 	LastName  string `json:"lastname"`
 }
+
+type PlayerInfo struct {
+	Username  string   `json:"username"`
+	FirstName string   `json:"firstname"`
+	LastName  string   `json:"lastname"`
+	Friends   []string `json:"friends"`
+	Matches   []Match  `json:"matches"`
+}

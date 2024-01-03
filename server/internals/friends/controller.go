@@ -42,7 +42,7 @@ func (Controller *FriendsController) AcceptFriendRequestHandler(c *fiber.Ctx) er
 	if err != nil {
 		return err
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"code": fiber.StatusOK, "message": "friend request sent"})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"code": fiber.StatusOK, "message": "friend request accepted"})
 }
 
 func (Controller *FriendsController) RejectFriendRequestHandler(c *fiber.Ctx) error {

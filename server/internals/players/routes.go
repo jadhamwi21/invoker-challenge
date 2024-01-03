@@ -16,5 +16,6 @@ func AddPlayersRoutes(app *fiber.App, db *mongo.Database) {
 	router.Use(auth.Protected)
 
 	router.Get("/", controller.GetPlayersHandler)
+	router.Get("/:username", controller.GetPlayerInfoHandler)
 
 }

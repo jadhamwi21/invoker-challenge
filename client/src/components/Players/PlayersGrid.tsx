@@ -1,14 +1,12 @@
-import React from "react";
-import styles from "./PlayersGrid.module.scss";
-import { PlayerDetails } from "@/types/player.types";
 import PlayerItem from "./PlayerItem";
-type Props = { players: PlayerDetails[] };
+import styles from "./PlayersGrid.module.scss";
+type Props = { players: string[] };
 
 const PlayersGrid = ({ players }: Props) => {
 	return (
 		<div className={styles.grid}>
 			{players.map((player) => (
-				<PlayerItem key={player.name} player={player} />
+				<PlayerItem key={player} player={player} />
 			))}
 		</div>
 	);

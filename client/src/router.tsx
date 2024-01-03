@@ -13,6 +13,7 @@ import Playground from "./features/Playground/Playground";
 import Players from "./features/Players/Players";
 import { motion, AnimatePresence } from "framer-motion";
 import PagesTransitionWrapper from "./layouts/Transitions/PagesTransitionWrapper";
+import Player from "./features/Player/Player";
 
 export const router = createBrowserRouter(
 	createRoutesFromElements(
@@ -22,6 +23,7 @@ export const router = createBrowserRouter(
 			<Route path="login" element={<LoginView />} />
 			<Route path="dashboard" element={<DashboardView />}>
 				<Route path="players" element={<Players />} />
+				<Route path="players/:slug" element={<Player />} />
 				<Route path="friends" element={<Friends />} />
 				<Route path="playground" element={<Playground />} />
 			</Route>
