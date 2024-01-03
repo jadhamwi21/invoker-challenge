@@ -124,3 +124,34 @@ func (Repo *FriendsRepo) RejectFriendRequest(clientUsername string, requestId st
 
 	return nil
 }
+
+func (Repo *FriendsRepo) GetFriendsByUsername(username string) ([]string, error) {
+
+	playersCollection := Repo.Db.Collection("players")
+
+	player := &models.BasePlayer{}
+
+	err := playersCollection.FindOne(context.Background(), bson.M{"username": username}).Decode(player)
+	if err != nil {
+		return nil, err
+	}
+
+	friends := []string{}
+
+	friendsFilter := bson.M{"_id": bson.M{"$in": player.Friends}}
+
+	cursor, err := playersCollection.Find(context.Background(), friendsFilter)
+	if err != nil {
+		return nil, err
+	}
+
+	for cursor.Next(context.Background()) {
+		var friend models.BasePlayer
+		if err := cursor.Decode(&friend); err != nil {
+			return nil, err
+		}
+		friends = append(friends, friend.Username)
+	}
+
+	return friends, nil
+}

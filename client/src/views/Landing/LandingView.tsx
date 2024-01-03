@@ -3,16 +3,16 @@ import HeadlineSection from "./views/Headline/HeadlineSection";
 import PlaygroundSection from "./views/Playground/PlaygroundSection";
 import ServicesSection from "./views/Services/ServicesSection";
 import { motion } from "framer-motion";
-import PageTransition from "@/layouts/Transitions/PageTransition";
+import Transition from "@/layouts/Transitions/Transitions";
 type Props = {};
 
 const LandingView = (props: Props) => {
 	return (
-		<PageTransition>
+		<Transition>
 			<HeadlineSection />
 			<PlaygroundSection />
 			<ServicesSection />
-		</PageTransition>
+		</Transition>
 	);
 };
 

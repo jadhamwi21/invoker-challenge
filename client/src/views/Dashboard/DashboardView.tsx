@@ -1,21 +1,30 @@
 import SideBar from "@/layouts/SideBar/SideBar";
 import React from "react";
 import styles from "./DashboardView.module.scss";
-import { Outlet } from "react-router-dom";
-import PageTransition from "@/layouts/Transitions/PageTransition";
+import { Outlet, useLocation } from "react-router-dom";
+import Transition from "@/layouts/Transitions/Transitions";
+import { useDashboard } from "@/hooks/useDashboard";
+import Loader from "@/components/Loader/Loader";
+import DashboardContainer from "@/containers/Dashboard/DashboardContainer";
 
 type Props = {};
 
 const DashboardView = (props: Props) => {
+	const { key } = useLocation();
+
 	return (
-		<PageTransition>
+		<Transition>
 			<div className={styles.container}>
 				<SideBar />
 				<div className={styles.outlet}>
-					<Outlet />
+					<DashboardContainer>
+						<Transition transitionKey={key}>
+							<Outlet />
+						</Transition>
+					</DashboardContainer>
 				</div>
 			</div>
-		</PageTransition>
+		</Transition>
 	);
 };
 

@@ -32,6 +32,7 @@ func (Repo *PlayersRepo) FindPlayersByQuery(query string, excludedUsername strin
 	if err != nil {
 		return players, err
 	}
+	defer cursor.Close(context.Background())
 	if err := cursor.All(context.TODO(), &playersDocs); err != nil {
 		return players, err
 	}

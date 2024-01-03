@@ -14,7 +14,7 @@ import styles from "./Playground.module.scss";
 import { usePlayground } from "./hooks/usePlayground";
 import Spells from "@/components/Spells/Spells";
 import { useState } from "react";
-import PageTransition from "@/layouts/Transitions/PageTransition";
+import Transition from "@/layouts/Transitions/Transitions";
 
 type Props = {};
 
@@ -26,7 +26,7 @@ const Playground = (props: Props) => {
 		setShowSpells((prev) => !prev);
 	};
 	return (
-		<PageTransition>
+		<Transition>
 			<div className={styles.container} ref={elementRef}>
 				<div
 					className={styles.panel}
@@ -62,7 +62,7 @@ const Playground = (props: Props) => {
 				<Spell spell={spell} />
 				<Keys />
 			</div>
-		</PageTransition>
+		</Transition>
 	);
 };
 

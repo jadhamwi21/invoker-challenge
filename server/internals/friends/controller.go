@@ -55,3 +55,14 @@ func (Controller *FriendsController) RejectFriendRequestHandler(c *fiber.Ctx) er
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"code": fiber.StatusOK, "message": "friend request rejected"})
 }
+
+func (Controller *FriendsController) GetFriendsHandler(c *fiber.Ctx) error {
+
+	username := c.Locals("username").(string)
+
+	friends, err := Controller.Repo.GetFriendsByUsername(username)
+	if err != nil {
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(friends)
+}

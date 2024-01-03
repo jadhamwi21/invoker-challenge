@@ -3,7 +3,7 @@ import { IconDefinition, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import styles from "./SideBarItem.module.scss";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
 	icon: IconDefinition;
@@ -22,8 +22,14 @@ const SideBarItem = ({ icon, label, onClick, route }: Props) => {
 			onClick();
 		}
 	};
+	const location = useLocation();
+	const classes =
+		location.pathname === `/dashboard/${route}`
+			? [styles.list, styles.selected]
+			: [styles.list];
+
 	return (
-		<li className={styles.list}>
+		<li className={classes.join(" ")}>
 			<Button variant="secondary" onClick={onClickHandler}>
 				<div className={styles.wrapper}>
 					<FontAwesomeIcon icon={icon} color="var(--blue)" />

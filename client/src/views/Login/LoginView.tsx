@@ -5,17 +5,17 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import styles from "./LoginView.module.scss";
 import Login from "@/features/Login/Login";
-import PageTransition from "@/layouts/Transitions/PageTransition";
+import Transition from "@/layouts/Transitions/Transitions";
 
 type Props = {};
 
 const LoginView = (props: Props) => {
 	return (
-		<PageTransition>
+		<Transition>
 			<div className={styles.container}>
 				<Login />
 			</div>
-		</PageTransition>
+		</Transition>
 	);
 };
 
