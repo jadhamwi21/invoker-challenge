@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jadhamwi21/invoker-challenge/internals/models"
+	"github.com/jadhamwi21/invoker-challenge/internals/sse"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,6 +21,7 @@ func NewFriendsRepo(db *mongo.Database) *FriendsRepo {
 }
 
 func (Repo *FriendsRepo) FriendRequest(clientUsername string, friendUsername string) error {
+
 	playersCollection := Repo.Db.Collection("players")
 
 	friendFilter := bson.M{"username": friendUsername}
@@ -59,6 +61,7 @@ func (Repo *FriendsRepo) FriendRequest(clientUsername string, friendUsername str
 	if err != nil {
 		return err
 	}
+	sse.SseService.SendEventToUser(friendUsername, sse.NewSSEvent("Notification", "A New Friend Request"))
 	return nil
 }
 

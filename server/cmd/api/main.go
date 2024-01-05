@@ -10,6 +10,7 @@ import (
 	"github.com/jadhamwi21/invoker-challenge/internals/auth"
 	"github.com/jadhamwi21/invoker-challenge/internals/database"
 	"github.com/jadhamwi21/invoker-challenge/internals/friends"
+	"github.com/jadhamwi21/invoker-challenge/internals/notifications"
 	"github.com/jadhamwi21/invoker-challenge/internals/players"
 	"github.com/spf13/viper"
 )
@@ -39,6 +40,7 @@ func main() {
 	auth.AddAuthRoutes(app, db)
 	players.AddPlayersRoutes(app, db)
 	friends.AddFriendsRoutes(app, db)
+	notifications.AddNotificationsRoutes(app, db)
 
 	PORT := fmt.Sprintf(":%v", viper.GetString("PORT"))
 	app.Listen(PORT)
