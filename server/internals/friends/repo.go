@@ -3,6 +3,8 @@ package friends
 import (
 	"context"
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jadhamwi21/invoker-challenge/internals/models"
@@ -45,7 +47,7 @@ func (Repo *FriendsRepo) FriendRequest(clientUsername string, friendUsername str
 	if friend.ID == client.ID {
 		return fiber.NewError(fiber.StatusBadRequest, "can't send friend request to yourself")
 	}
-	friendRequest := &models.FriendRequest{ID: primitive.NewObjectID(), Requester: client.ID, Requestee: friend.ID}
+	friendRequest := &models.FriendRequest{Timestamp: primitive.NewDateTimeFromTime(time.Now()), ID: primitive.NewObjectID(), Requester: client.ID, Requestee: friend.ID}
 	friendRequestFilter := bson.M{
 		"$or": []bson.M{
 			{"requester": client.ID, "requestee": friend.ID},
@@ -57,11 +59,13 @@ func (Repo *FriendsRepo) FriendRequest(clientUsername string, friendUsername str
 	if friendRequestResult.Err() == nil {
 		return nil
 	}
+
 	_, err := friendsRequestsCollection.InsertOne(context.Background(), friendRequest)
 	if err != nil {
 		return err
 	}
-	sse.SseService.SendEventToUser(friendUsername, sse.NewSSEvent("Notification", "A New Friend Request"))
+	sse.SseService.SendEventToUser(friendUsername, sse.NewSSEvent("friend-request", map[string]interface{}{"request-id": friendRequest.ID, "username": clientUsername}))
+
 	return nil
 }
 
@@ -96,6 +100,17 @@ func (Repo *FriendsRepo) AcceptFriendRequest(clientUsername string, requestId st
 	friendFilter := bson.M{"_id": requesteeId}
 	playersCollection.UpdateOne(context.Background(), clientFilter, bson.M{"$push": bson.M{"friends": requesteeId}})
 	playersCollection.UpdateOne(context.Background(), friendFilter, bson.M{"$push": bson.M{"friends": requesterId}})
+	friend := &models.BasePlayer{}
+
+	playersCollection.FindOne(context.Background(), friendFilter).Decode(friend)
+
+	sse.SseService.SendEventToUser(friend.Username, sse.NewSSEvent("friend-request:accept", requestId))
+
+	notification := &models.Notification{ID: primitive.NewObjectID(), UserID: request.Requester, Timestamp: primitive.NewDateTimeFromTime(time.Now()), Text: fmt.Sprintf("Your friend request to %v was accepted", client.Username)}
+	notificationsCollection := Repo.Db.Collection("notifications")
+	notificationsCollection.InsertOne(context.Background(), notification)
+	sse.SseService.SendEventToUser(friend.Username, sse.NewSSEvent("notification", map[string]interface{}{"text": notification.Text, "timestamp": notification.Timestamp}))
+
 	return nil
 }
 
@@ -124,7 +139,10 @@ func (Repo *FriendsRepo) RejectFriendRequest(clientUsername string, requestId st
 		return fiber.NewError(fiber.StatusUnauthorized, "unauthorized to reject this request")
 	}
 	friendsRequestsCollection.DeleteOne(context.Background(), request)
-
+	friend := &models.BasePlayer{}
+	friendFilter := bson.M{"_id": request.Requestee}
+	playersCollection.FindOne(context.Background(), friendFilter).Decode(friend)
+	sse.SseService.SendEventToUser(friend.Username, sse.NewSSEvent("friend-request:reject", requestId))
 	return nil
 }
 

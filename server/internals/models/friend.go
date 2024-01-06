@@ -12,4 +12,5 @@ type FriendRequest struct {
 	ID        primitive.ObjectID `bson:"_id"`
 	Requester primitive.ObjectID `bson:"requester"`
 	Requestee primitive.ObjectID `bson:"requestee"`
+	Timestamp primitive.DateTime `bson:"timestamp"`
 }

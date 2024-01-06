@@ -14,6 +14,7 @@ func (SseService *sseService) AddUser(username string) {
 }
 
 func (SseService *sseService) RemoveUser(username string) {
+	fmt.Println("removed", username)
 	delete(SseService.rooms, username)
 }
 
@@ -26,7 +27,7 @@ func (SseService *sseService) SendEventToUser(username string, event SSEvent) er
 		return nil
 	}
 	channel := SseService.rooms[username]
-
+	fmt.Println("sent event to ", username)
 	go func() {
 		channel <- event
 	}()

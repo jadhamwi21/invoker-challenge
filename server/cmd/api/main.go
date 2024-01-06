@@ -12,6 +12,7 @@ import (
 	"github.com/jadhamwi21/invoker-challenge/internals/friends"
 	"github.com/jadhamwi21/invoker-challenge/internals/notifications"
 	"github.com/jadhamwi21/invoker-challenge/internals/players"
+	"github.com/jadhamwi21/invoker-challenge/internals/sse"
 	"github.com/spf13/viper"
 )
 
@@ -41,6 +42,7 @@ func main() {
 	players.AddPlayersRoutes(app, db)
 	friends.AddFriendsRoutes(app, db)
 	notifications.AddNotificationsRoutes(app, db)
+	sse.SetupSSE(app)
 
 	PORT := fmt.Sprintf(":%v", viper.GetString("PORT"))
 	app.Listen(PORT)
