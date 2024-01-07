@@ -230,7 +230,7 @@ func (Repo *FriendsRepo) FriendStatusCheck(clientUsername string, friendUsername
 	return map[string]interface{}{"status": "not-friend"}, nil
 }
 
-func (Repo *FriendsRepo) RemoveFriend(clientUsername string, friendUsername string) error {
+func (Repo *FriendsRepo) RemoveFriend(clientId primitive.ObjectID, friendUsername string) error {
 
 	playersCollection := Repo.Db.Collection("players")
 
@@ -244,7 +244,12 @@ func (Repo *FriendsRepo) RemoveFriend(clientUsername string, friendUsername stri
 		}
 		return err
 	}
-	playersCollection.UpdateOne(context.Background(), bson.M{"username": clientUsername}, bson.M{"$pull": bson.M{"friends": friend.ID}})
-	fmt.Println("update")
+
+	playersCollection.UpdateMany(
+		context.Background(),
+		bson.M{"_id": bson.M{"$in": []primitive.ObjectID{friend.ID, clientId}}},
+		bson.M{"$pull": bson.M{"friends": bson.M{"$in": []primitive.ObjectID{friend.ID, clientId}}}},
+	)
+
 	return nil
 }

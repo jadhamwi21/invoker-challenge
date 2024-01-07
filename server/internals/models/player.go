@@ -31,6 +31,7 @@ type PlayerLoginCredentials struct {
 
 type PlayerClaims struct {
 	Username string `json:"username"`
+	ID       string `json:"id"`
 	jwt.MapClaims
 }
 

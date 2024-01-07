@@ -1,10 +1,13 @@
 package friends
 
 import (
+	"fmt"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jadhamwi21/invoker-challenge/internals/models"
 	"github.com/jadhamwi21/invoker-challenge/internals/validation"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type FriendsController struct {
@@ -80,9 +83,10 @@ func (Controller *FriendsController) FriendStatusHandler(c *fiber.Ctx) error {
 
 func (Controller *FriendsController) RemoveFriendHandler(c *fiber.Ctx) error {
 
-	username := c.Locals("username").(string)
+	clientId := c.Locals("id").(primitive.ObjectID)
+	fmt.Println(clientId)
 	friendUsername := c.Params("username")
-	err := Controller.Repo.RemoveFriend(username, friendUsername)
+	err := Controller.Repo.RemoveFriend(clientId, friendUsername)
 	if err != nil {
 		return err
 	}

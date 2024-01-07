@@ -26,8 +26,9 @@ func (Controller *PlayersController) GetPlayersHandler(c *fiber.Ctx) error {
 func (Controller *PlayersController) GetPlayerInfoHandler(c *fiber.Ctx) error {
 
 	username := c.Params("username")
+	clientUsername := c.Locals("username").(string)
 
-	info, err := Controller.Repo.GetPlayerInfo(username)
+	info, err := Controller.Repo.GetPlayerInfo(clientUsername, username)
 	if err != nil {
 		return err
 	}

@@ -10,7 +10,7 @@ import (
 
 func GenerateJwt(player *models.BasePlayer) (string, error) {
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &models.PlayerClaims{Username: player.Username})
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &models.PlayerClaims{Username: player.Username, ID: player.ID.Hex()})
 
 	secret := []byte(viper.GetString("SECRET"))
 	tokenString, err := token.SignedString(secret)

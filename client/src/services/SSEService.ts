@@ -17,6 +17,8 @@ export default class SSEService {
 
 		this.sse.onmessage = (e) => {
 			const { data, type }: SSEMessageType = JSON.parse(e.data);
+			console.log(data, type);
+
 			if (this.handlersMap[type]) {
 				this.handlersMap[type](data);
 			}

@@ -1,5 +1,7 @@
 import InvokerHeader from "@/assets/images/InvokerHead.png";
 
+import Button from "@/components/Button/Button";
+import PlayerFriendStatusIcon from "@/components/Icons/PlayerFriendStatus/PlayerFriendStatusIcon";
 import {
 	useAcceptFriendRequestMutation,
 	useGetFriendStatusQuery,
@@ -8,10 +10,10 @@ import {
 	useRemoveFriendMutation,
 } from "@/redux/apis/friends.api";
 import { PlayerInfo } from "@/types/player.types";
+import { useCallback } from "react";
 import styles from "./PlayerInfoHeader.module.scss";
-import PlayerFriendStatusIcon from "@/components/Icons/PlayerFriendStatus/PlayerFriendStatusIcon";
-import { useCallback, useMemo } from "react";
-import Button from "@/components/Button/Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser, faUserGroup } from "@fortawesome/free-solid-svg-icons";
 
 type Props = {
 	player: Pick<PlayerInfo, "firstname" | "lastname" | "username">;
@@ -75,7 +77,8 @@ const PlayerInfoHeader = ({ player }: Props) => {
 						disabled={
 							friendRequestLoading ||
 							friendRequestAcceptLoading ||
-							friendRequestRejectLoading
+							friendRequestRejectLoading ||
+							removeFriendLoading
 						}
 						type={
 							data.status === "friend"
@@ -87,9 +90,14 @@ const PlayerInfoHeader = ({ player }: Props) => {
 						onClick={clickHandler}
 					/>
 				) : (
-					<div>
-						<Button onClick={acceptClickHandler}>Accept</Button>
-						<Button onClick={rejectClickHandler}>Reject</Button>
+					<div className={styles.accept_reject_wrapper}>
+						<Button onClick={acceptClickHandler} variant="secondary">
+							Accept
+						</Button>
+						<FontAwesomeIcon icon={faUserGroup} />
+						<Button onClick={rejectClickHandler} variant="secondary">
+							Reject
+						</Button>
 					</div>
 				)}
 			</div>

@@ -24,3 +24,22 @@
 		color: var(--blue);
 	}
 }
+
+.accept_reject_wrapper {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	gap: 1em;
+	background-color: rgba(0, 0, 0, 0.3);
+
+	border-radius: 6px;
+	& > button {
+		&:first-child {
+			color: var(--green);
+		}
+		&:last-child {
+			color: var(--red);
+		}
+	}
+}

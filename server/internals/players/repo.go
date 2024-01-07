@@ -43,7 +43,7 @@ func (Repo *PlayersRepo) FindPlayersByQuery(query string, excludedUsername strin
 	return players, nil
 }
 
-func (Repo *PlayersRepo) GetPlayerInfo(username string) (*models.PlayerInfo, error) {
+func (Repo *PlayersRepo) GetPlayerInfo(clientUsername string, username string) (*models.PlayerInfo, error) {
 
 	basePlayer := &models.BasePlayer{}
 	playersCollection := Repo.Db.Collection("players")
@@ -67,7 +67,10 @@ func (Repo *PlayersRepo) GetPlayerInfo(username string) (*models.PlayerInfo, err
 		if err := cursor.Decode(&friend); err != nil {
 			return nil, err
 		}
-		friendsNames = append(friendsNames, friend.Username)
+		if friend.Username != clientUsername {
+
+			friendsNames = append(friendsNames, friend.Username)
+		}
 	}
 	playerInfo := &models.PlayerInfo{Username: basePlayer.Username, LastName: basePlayer.LastName, FirstName: basePlayer.FirstName, Friends: friendsNames, Matches: []models.Match{}}
 	return playerInfo, nil
