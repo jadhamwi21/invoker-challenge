@@ -7,4 +7,11 @@ type Notification struct {
 	ID        primitive.ObjectID `bson:"_id"`
 	UserID    primitive.ObjectID `bson:"user_id"`
 	Text      string             `bson:"text"`
+	Seen      bool               `bson:"seen"`
+}
+
+type UserNotifification struct {
+	Timestamp primitive.DateTime `json:"timestamp"`
+	Text      string             `json:"text"`
+	Seen      bool               `json:"seen"`
 }

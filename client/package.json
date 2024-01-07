@@ -29,6 +29,7 @@
 		"react-spinners": "^0.13.8",
 		"react-toastify": "^9.1.3",
 		"usehooks-ts": "^2.9.1",
+		"uuid": "^9.0.1",
 		"yup": "^1.3.3"
 	},
 	"devDependencies": {
@@ -36,6 +37,7 @@
 		"@types/node": "^20.10.5",
 		"@types/react": "^18.2.43",
 		"@types/react-dom": "^18.2.17",
+		"@types/uuid": "^9.0.7",
 		"@typescript-eslint/eslint-plugin": "^6.14.0",
 		"@typescript-eslint/parser": "^6.14.0",
 		"@vitejs/plugin-react": "^4.2.1",

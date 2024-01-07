@@ -96,20 +96,20 @@ func (Repo *FriendsRepo) AcceptFriendRequest(clientUsername string, requestId st
 	if client.ID != requesteeId {
 		return fiber.NewError(fiber.StatusUnauthorized, "unauthorized to accept this request")
 	}
-	clientFilter := bson.M{"_id": requesterId}
-	friendFilter := bson.M{"_id": requesteeId}
-	playersCollection.UpdateOne(context.Background(), clientFilter, bson.M{"$push": bson.M{"friends": requesteeId}})
-	playersCollection.UpdateOne(context.Background(), friendFilter, bson.M{"$push": bson.M{"friends": requesterId}})
-	friend := &models.BasePlayer{}
+	requesteeFilter := bson.M{"_id": requesteeId}
+	requesterFilter := bson.M{"_id": requesterId}
+	playersCollection.UpdateOne(context.Background(), requesteeFilter, bson.M{"$push": bson.M{"friends": requesterId}})
+	playersCollection.UpdateOne(context.Background(), requesterFilter, bson.M{"$push": bson.M{"friends": requesteeId}})
+	requester := &models.BasePlayer{}
 
-	playersCollection.FindOne(context.Background(), friendFilter).Decode(friend)
-
-	sse.SseService.SendEventToUser(friend.Username, sse.NewSSEvent("friend-request:accept", requestId))
+	playersCollection.FindOne(context.Background(), requesterFilter).Decode(requester)
+	fmt.Println(requester.Username, clientUsername)
+	sse.SseService.SendEventToUser(requester.Username, sse.NewSSEvent("friend-request:accept", map[string]interface{}{"request-id": requestId, "username": client.Username}))
 
 	notification := &models.Notification{ID: primitive.NewObjectID(), UserID: request.Requester, Timestamp: primitive.NewDateTimeFromTime(time.Now()), Text: fmt.Sprintf("Your friend request to %v was accepted", client.Username)}
 	notificationsCollection := Repo.Db.Collection("notifications")
 	notificationsCollection.InsertOne(context.Background(), notification)
-	sse.SseService.SendEventToUser(friend.Username, sse.NewSSEvent("notification", map[string]interface{}{"text": notification.Text, "timestamp": notification.Timestamp}))
+	sse.SseService.SendEventToUser(requester.Username, sse.NewSSEvent("notification", notification.Text))
 	friendsRequestsCollection.DeleteOne(context.Background(), bson.M{"_id": request.ID})
 	return nil
 }
@@ -139,10 +139,20 @@ func (Repo *FriendsRepo) RejectFriendRequest(clientUsername string, requestId st
 		return fiber.NewError(fiber.StatusUnauthorized, "unauthorized to reject this request")
 	}
 	friendsRequestsCollection.DeleteOne(context.Background(), request)
-	friend := &models.BasePlayer{}
-	friendFilter := bson.M{"_id": request.Requestee}
-	playersCollection.FindOne(context.Background(), friendFilter).Decode(friend)
-	sse.SseService.SendEventToUser(friend.Username, sse.NewSSEvent("friend-request:reject", requestId))
+	if client.ID == request.Requestee {
+
+		requester := &models.BasePlayer{}
+		requesterFilter := bson.M{"_id": request.Requester}
+		playersCollection.FindOne(context.Background(), requesterFilter).Decode(requester)
+		fmt.Println("sent")
+		sse.SseService.SendEventToUser(requester.Username, sse.NewSSEvent("friend-request:reject", map[string]interface{}{"request-id": requestId, "username": client.Username}))
+	} else {
+		requestee := &models.BasePlayer{}
+		requesteeFilter := bson.M{"_id": request.Requestee}
+		playersCollection.FindOne(context.Background(), requesteeFilter).Decode(requestee)
+		fmt.Println("sent")
+		sse.SseService.SendEventToUser(requestee.Username, sse.NewSSEvent("friend-request:reject", map[string]interface{}{"request-id": requestId, "username": client.Username}))
+	}
 	return nil
 }
 
@@ -250,6 +260,11 @@ func (Repo *FriendsRepo) RemoveFriend(clientId primitive.ObjectID, friendUsernam
 		bson.M{"_id": bson.M{"$in": []primitive.ObjectID{friend.ID, clientId}}},
 		bson.M{"$pull": bson.M{"friends": bson.M{"$in": []primitive.ObjectID{friend.ID, clientId}}}},
 	)
+
+	player := &models.BasePlayer{}
+	playersCollection.FindOne(context.Background(), bson.M{"_id": clientId}).Decode(player)
+
+	sse.SseService.SendEventToUser(friend.Username, sse.NewSSEvent("friend-remove", map[string]interface{}{"username": player.Username}))
 
 	return nil
 }

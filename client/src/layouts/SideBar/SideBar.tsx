@@ -14,10 +14,12 @@ import SideBarItem from "./SideBarItem";
 import Profile from "./ProfileItem";
 import { useAppSelector } from "@/redux/store";
 import { selectPlayer } from "@/redux/slices/player.slice";
+import { useGetNotificationsQuery } from "@/redux/apis/notifications.api";
 type Props = {};
 
 const SideBar = (props: Props) => {
 	const { details } = useAppSelector(selectPlayer);
+	const { data: notifications } = useGetNotificationsQuery();
 	return (
 		<div className={styles.container}>
 			<Profile name={details ? details.username : "..."} />
@@ -31,6 +33,14 @@ const SideBar = (props: Props) => {
 					icon={faBell}
 					label="Notifications"
 					route="notifications"
+					count={
+						notifications
+							? notifications.reduce(
+									(total, current) => (total += Number(!current.seen)),
+									0
+							  )
+							: undefined
+					}
 				/>
 			</ul>
 		</div>

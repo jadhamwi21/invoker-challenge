@@ -5,12 +5,14 @@ import { setupListeners } from "@reduxjs/toolkit/query";
 import { PlayerReducer } from "./slices/player.slice";
 import { playersApi } from "./apis/players.api";
 import { friendsApi } from "./apis/friends.api";
+import { notificationsApi } from "./apis/notifications.api";
 
 export const store = configureStore({
 	reducer: {
 		[authApi.reducerPath]: authApi.reducer,
 		[playersApi.reducerPath]: playersApi.reducer,
 		[friendsApi.reducerPath]: friendsApi.reducer,
+		[notificationsApi.reducerPath]: notificationsApi.reducer,
 		Player: PlayerReducer,
 	},
 
@@ -18,7 +20,8 @@ export const store = configureStore({
 		getDefaultMiddleware()
 			.concat(authApi.middleware)
 			.concat(playersApi.middleware)
-			.concat(friendsApi.middleware),
+			.concat(friendsApi.middleware)
+			.concat(notificationsApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

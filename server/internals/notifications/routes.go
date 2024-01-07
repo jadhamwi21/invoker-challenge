@@ -15,7 +15,7 @@ func AddNotificationsRoutes(app *fiber.App, db *mongo.Database) {
 
 	router.Use(auth.Protected)
 
-	router.Get("/subscribe", controller.SubscriptionHandler)
-	router.Get("/unsubscribe", controller.UnsubscribeHandler)
+	router.Get("/", controller.GetNotificationsHandler)
+	router.Put("/seen", controller.MarkNotificationsAsSeenHandler)
 
 }

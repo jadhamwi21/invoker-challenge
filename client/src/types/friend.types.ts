@@ -9,3 +9,5 @@ export type FriendStatusResponse =
 	| { status: "not-friend" }
 	| { status: "pending-your-response"; requestId: string }
 	| { status: "pending-his-response"; requestId: string };
+
+export type FriendRequestMessage = { "request-id": string; username: string };

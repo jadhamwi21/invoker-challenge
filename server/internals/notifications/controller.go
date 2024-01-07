@@ -1,11 +1,10 @@
 package notifications
 
 import (
-	"bufio"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/jadhamwi21/invoker-challenge/internals/sse"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type NotificationsController struct {
@@ -16,42 +15,29 @@ func NewNotificationsController(repo *NotificationsRepo) *NotificationsControlle
 	return &NotificationsController{Repo: repo}
 }
 
-func (Controller *NotificationsController) SubscriptionHandler(c *fiber.Ctx) error {
-	username := c.Locals("username").(string)
-	c.Set("Content-Type", "text/event-stream")
-	c.Set("Cache-Control", "no-cache")
-	c.Set("Connection", "keep-alive")
-	c.Set("Transfer-Encoding", "chunked")
-	sse.SseService.AddUser(username)
-	c.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
-		channel := sse.SseService.GetUserChannel(username)
+func (Controller *NotificationsController) GetNotificationsHandler(c *fiber.Ctx) error {
 
-		for {
-			event := <-channel
-			message, err := event.Format()
-			if err != nil {
-				fmt.Printf("%v", err)
-				continue
-			}
-			fmt.Println("msg", message)
+	id := c.Locals("id").(primitive.ObjectID)
 
-			fmt.Fprint(w, message)
-			w.Flush()
-			if event.IsExitEvent() {
-				sse.SseService.RemoveUser(username)
-				close(channel)
-				break
-			}
+	notifications, err := Controller.Repo.GetNotifications(id)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 
-		}
+	return c.JSON(notifications)
 
-	})
-
-	return nil
 }
 
-func (Controller *NotificationsController) UnsubscribeHandler(c *fiber.Ctx) error {
-	username := c.Locals("username").(string)
-	go sse.SseService.SendEventToUser(username, sse.NewExitEvent())
-	return nil
+func (Controller *NotificationsController) MarkNotificationsAsSeenHandler(c *fiber.Ctx) error {
+
+	id := c.Locals("id").(primitive.ObjectID)
+	err := Controller.Repo.MarkNotificationsAsSeen(id)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return c.SendStatus(fiber.StatusOK)
+
 }

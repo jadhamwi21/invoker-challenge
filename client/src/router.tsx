@@ -14,6 +14,7 @@ import Players from "./features/Players/Players";
 import { motion, AnimatePresence } from "framer-motion";
 import PagesTransitionWrapper from "./layouts/Transitions/PagesTransitionWrapper";
 import Player from "./features/Player/Player";
+import Notifications from "./features/Notifications/Notifications";
 
 export const router = createBrowserRouter(
 	createRoutesFromElements(
@@ -26,6 +27,7 @@ export const router = createBrowserRouter(
 				<Route path="players/:slug" element={<Player />} />
 				<Route path="friends" element={<Friends />} />
 				<Route path="playground" element={<Playground />} />
+				<Route path="notifications" element={<Notifications />} />
 			</Route>
 		</Route>
 	)

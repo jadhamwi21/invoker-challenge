@@ -1,15 +1,28 @@
-type FriendRequestEventsType =
+import { v4 as uuid } from "uuid";
+
+type FriendEvent =
 	| "friend-request"
+	| "friend-remove"
 	| "friend-request:accept"
 	| "friend-request:reject";
 
-type SSEventType = FriendRequestEventsType | "notification";
+type SSEventType = FriendEvent | "notification";
 
+type HandlerPath = `${SSEventType}.${string}`;
 type SSEMessageType = { type: SSEventType; data: any };
 
 export default class SSEService {
 	private static sse: EventSource;
-	public static handlersMap: Record<SSEventType, (data: any) => void>;
+	private static handlersMap: Record<
+		SSEventType,
+		Record<string, (data: any) => void>
+	> = {
+		"friend-request": {},
+		"friend-request:accept": {},
+		"friend-request:reject": {},
+		"friend-remove": {},
+		notification: {},
+	};
 	public static async setup() {
 		this.sse = new EventSource(`${import.meta.env.VITE_BASE_URL}/sse`, {
 			withCredentials: true,
@@ -20,8 +33,18 @@ export default class SSEService {
 			console.log(data, type);
 
 			if (this.handlersMap[type]) {
-				this.handlersMap[type](data);
+				Object.values(this.handlersMap[type]).forEach((cb) => cb(data));
 			}
 		};
+	}
+	public static addListener(type: SSEventType, handler: (data: any) => void) {
+		const id = uuid();
+		const path: HandlerPath = `${type}.${id}`;
+		this.handlersMap[type][id] = handler;
+		return path;
+	}
+	public static removeListener(path: HandlerPath) {
+		const [type, id] = path.split(".") as [SSEventType, string];
+		delete this.handlersMap[type][id];
 	}
 }

@@ -10,9 +10,10 @@ type Props = {
 	label: string;
 	onClick?: () => void;
 	route?: string;
+	count?: number;
 };
 
-const SideBarItem = ({ icon, label, onClick, route }: Props) => {
+const SideBarItem = ({ icon, label, onClick, route, count }: Props) => {
 	const navigate = useNavigate();
 	const onClickHandler = () => {
 		if (route) {
@@ -34,6 +35,7 @@ const SideBarItem = ({ icon, label, onClick, route }: Props) => {
 				<div className={styles.wrapper}>
 					<FontAwesomeIcon icon={icon} color="var(--blue)" />
 					<p>{label}</p>
+					{count ? <div className={styles.badge}>{count}</div> : null}
 				</div>
 			</Button>
 		</li>

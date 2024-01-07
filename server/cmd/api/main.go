@@ -21,6 +21,7 @@ func main() {
 	db := database.ConnectToDatabase()
 
 	app := fiber.New(fiber.Config{ErrorHandler: func(c *fiber.Ctx, err error) error {
+		fmt.Println(err)
 		if err, ok := err.(*fiber.Error); ok {
 			c.Status(err.Code)
 			return c.JSON(fiber.Map{"code": err.Code, "message": err.Message})

@@ -2,7 +2,7 @@ import Loader from "@/components/Loader/Loader";
 import { useGetPlayerInfoQuery } from "@/redux/apis/players.api";
 import { useParams } from "react-router-dom";
 import PlayerFriends from "./components/Friends/PlayerFriends";
-import PlayerInfoHeader from "./components/Header/PlayerInfoHeader";
+import PlayerInfoHeader from "./containers/Header/PlayerInfoHeader";
 import styles from "./Player.module.scss";
 import PlayerMatches from "./components/Matches/PlayerMatches";
 type Props = {};
