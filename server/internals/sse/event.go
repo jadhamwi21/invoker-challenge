@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 const _EXIT_EVENT = "EXIT"
@@ -26,7 +28,10 @@ func (event SSEvent) Format() (string, error) {
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 
-	m := event.data
+	m := map[string]interface{}{
+		"type": event.eventType,
+		"data": event.data,
+	}
 
 	err := enc.Encode(m)
 	if err != nil {
@@ -34,7 +39,7 @@ func (event SSEvent) Format() (string, error) {
 	}
 	sb := strings.Builder{}
 
-	sb.WriteString(fmt.Sprintf("event: %s\n", event.eventType))
+	sb.WriteString(fmt.Sprintf("id: %s\n", uuid.New()))
 	sb.WriteString(fmt.Sprintf("retry: %d\n", 15000))
 	sb.WriteString(fmt.Sprintf("data: %v\n\n", strings.Trim(buf.String(), "\n")))
 
