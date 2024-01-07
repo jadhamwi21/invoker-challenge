@@ -1,9 +1,16 @@
 import { useGetClientFriendsQuery } from "@/redux/apis/friends.api";
+import SSEService from "@/services/SSEService";
+import { useEffect, useState } from "react";
 
 export const useDashboard = () => {
-	const { isLoading: friendsLoading } = useGetClientFriendsQuery();
+	const [subscribed, setSubscribed] = useState(false);
 
-	const loading = friendsLoading;
+	useEffect(() => {
+		SSEService.setup();
+		setSubscribed(true);
+	}, []);
+
+	const loading = !subscribed;
 
 	return { showOutlet: !loading };
 };

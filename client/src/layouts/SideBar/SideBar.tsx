@@ -12,12 +12,15 @@ import {
 import styles from "./SideBar.module.scss";
 import SideBarItem from "./SideBarItem";
 import Profile from "./ProfileItem";
+import { useAppSelector } from "@/redux/store";
+import { selectPlayer } from "@/redux/slices/player.slice";
 type Props = {};
 
 const SideBar = (props: Props) => {
+	const { details } = useAppSelector(selectPlayer);
 	return (
 		<div className={styles.container}>
-			<Profile name="Jad" />
+			<Profile name={details ? details.username : "..."} />
 			<ul className={styles.list}>
 				<SideBarItem icon={faChartBar} label="Stats" route="stats" />
 				<SideBarItem icon={faGamepad} label="Play" route="play" />

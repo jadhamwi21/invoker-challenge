@@ -1,11 +1,8 @@
-import SideBar from "@/layouts/SideBar/SideBar";
-import React from "react";
-import styles from "./DashboardView.module.scss";
-import { Outlet, useLocation } from "react-router-dom";
-import Transition from "@/layouts/Transitions/Transitions";
-import { useDashboard } from "@/hooks/useDashboard";
-import Loader from "@/components/Loader/Loader";
 import DashboardContainer from "@/containers/Dashboard/DashboardContainer";
+import SideBar from "@/layouts/SideBar/SideBar";
+import Transition from "@/layouts/Transitions/Transitions";
+import { Outlet, useLocation } from "react-router-dom";
+import styles from "./DashboardView.module.scss";
 
 type Props = {};
 

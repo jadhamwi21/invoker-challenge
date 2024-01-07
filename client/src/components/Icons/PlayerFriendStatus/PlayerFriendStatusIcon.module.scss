@@ -1,0 +1,20 @@
+.add_symbol {
+	color: var(--green) !important;
+}
+
+.remove_symbol {
+	color: var(--red) !important;
+}
+
+.pending_symbol {
+	color: var(--blue) !important;
+}
+
+.symbol {
+	position: absolute;
+	top: 0.4em;
+	left: -0.02em;
+	transform: scale(0.5);
+	width: 5px;
+	height: 5px;
+}

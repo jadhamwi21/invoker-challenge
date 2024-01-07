@@ -110,7 +110,7 @@ func (Repo *FriendsRepo) AcceptFriendRequest(clientUsername string, requestId st
 	notificationsCollection := Repo.Db.Collection("notifications")
 	notificationsCollection.InsertOne(context.Background(), notification)
 	sse.SseService.SendEventToUser(friend.Username, sse.NewSSEvent("notification", map[string]interface{}{"text": notification.Text, "timestamp": notification.Timestamp}))
-
+	friendsRequestsCollection.DeleteOne(context.Background(), bson.M{"_id": request.ID})
 	return nil
 }
 
@@ -135,7 +135,7 @@ func (Repo *FriendsRepo) RejectFriendRequest(clientUsername string, requestId st
 		}
 		return err
 	}
-	if client.ID != request.Requestee {
+	if client.ID != request.Requestee && client.ID != request.Requester {
 		return fiber.NewError(fiber.StatusUnauthorized, "unauthorized to reject this request")
 	}
 	friendsRequestsCollection.DeleteOne(context.Background(), request)
@@ -175,4 +175,76 @@ func (Repo *FriendsRepo) GetFriendsByUsername(username string) ([]string, error)
 	}
 
 	return friends, nil
+}
+
+func (Repo *FriendsRepo) FriendStatusCheck(clientUsername string, friendUsername string) (interface{}, error) {
+
+	playersCollection := Repo.Db.Collection("players")
+
+	player := &models.BasePlayer{}
+
+	err := playersCollection.FindOne(context.Background(), bson.M{"username": clientUsername}).Decode(player)
+	if err != nil {
+		return "", err
+	}
+
+	friendsFilter := bson.M{"_id": bson.M{"$in": player.Friends}}
+
+	cursor, err := playersCollection.Find(context.Background(), friendsFilter)
+	if err != nil {
+		return "", err
+	}
+
+	for cursor.Next(context.Background()) {
+		var friend models.BasePlayer
+		if err := cursor.Decode(&friend); err == nil {
+			if friend.Username == friendUsername {
+				return map[string]interface{}{"status": "friend"}, nil
+			}
+		}
+	}
+
+	friend := &models.BasePlayer{}
+	err = playersCollection.FindOne(context.Background(), bson.M{"username": friendUsername}).Decode(friend)
+	if err != nil {
+		return "", err
+	}
+	friendRequestFilter := bson.M{
+		"$or": []bson.M{
+			{"requester": player.ID, "requestee": friend.ID},
+			{"requester": friend.ID, "requestee": player.ID},
+		},
+	}
+
+	friendsCollection := Repo.Db.Collection("friends_requests")
+	request := &models.FriendRequest{}
+	err = friendsCollection.FindOne(context.Background(), friendRequestFilter).Decode(request)
+	if err == nil {
+		if player.ID == request.Requestee {
+			return map[string]interface{}{"status": "pending-your-response", "requestId": request.ID}, nil
+		} else {
+			return map[string]interface{}{"status": "pending-his-response", "requestId": request.ID}, nil
+		}
+	}
+
+	return map[string]interface{}{"status": "not-friend"}, nil
+}
+
+func (Repo *FriendsRepo) RemoveFriend(clientUsername string, friendUsername string) error {
+
+	playersCollection := Repo.Db.Collection("players")
+
+	friend := &models.BasePlayer{}
+	friendFilter := bson.M{"username": friendUsername}
+
+	err := playersCollection.FindOne(context.Background(), friendFilter).Decode(friend)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return fiber.NewError(fiber.StatusNotFound, "friend with this username is not found")
+		}
+		return err
+	}
+	playersCollection.UpdateOne(context.Background(), bson.M{"username": clientUsername}, bson.M{"$pull": bson.M{"friends": friend.ID}})
+	fmt.Println("update")
+	return nil
 }

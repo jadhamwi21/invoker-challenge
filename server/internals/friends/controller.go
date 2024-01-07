@@ -66,3 +66,25 @@ func (Controller *FriendsController) GetFriendsHandler(c *fiber.Ctx) error {
 	}
 	return c.Status(fiber.StatusOK).JSON(friends)
 }
+
+func (Controller *FriendsController) FriendStatusHandler(c *fiber.Ctx) error {
+
+	username := c.Locals("username").(string)
+	friendUsername := c.Params("username")
+	res, err := Controller.Repo.FriendStatusCheck(username, friendUsername)
+	if err != nil {
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(res)
+}
+
+func (Controller *FriendsController) RemoveFriendHandler(c *fiber.Ctx) error {
+
+	username := c.Locals("username").(string)
+	friendUsername := c.Params("username")
+	err := Controller.Repo.RemoveFriend(username, friendUsername)
+	if err != nil {
+		return err
+	}
+	return c.SendStatus(fiber.StatusOK)
+}

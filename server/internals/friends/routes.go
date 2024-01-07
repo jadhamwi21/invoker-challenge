@@ -16,6 +16,8 @@ func AddFriendsRoutes(app *fiber.App, db *mongo.Database) {
 	friendRouter.Post("/request", controller.NewFriendRequestHandler)
 	friendRouter.Post("/accept/:id", controller.AcceptFriendRequestHandler)
 	friendRouter.Post("/reject/:id", controller.RejectFriendRequestHandler)
+	friendRouter.Get("/:username/status", controller.FriendStatusHandler)
+	friendRouter.Delete("/:username", controller.RemoveFriendHandler)
 
 	friendsRouter := app.Group("/friends")
 
