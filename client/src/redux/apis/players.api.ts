@@ -3,7 +3,7 @@ import { PlayerInfo } from "@/types/player.types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const playersApi = createApi({
-	reducerPath: "playersApi",
+	reducerPath: "profileApi",
 	baseQuery: fetchBaseQuery({
 		baseUrl: `${import.meta.env.VITE_BASE_URL}/players`,
 	}),

@@ -1,6 +1,7 @@
-import { FriendsService } from "@/services/FriendsService";
-import _ from "lodash";
-import { useEffect, useRef, useState } from "react";
+import { useLazyGetClientFriendsQuery } from "@/redux/apis/friends.api";
+import SSEService from "@/services/SSEService";
+import { RequestMessage } from "@/types/friend.types";
+import { useEffect, useState } from "react";
 
 export const useFriends = () => {
 	const [filter, setFilter] = useState("");
@@ -8,18 +9,19 @@ export const useFriends = () => {
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) =>
 		setFilter(e.target.value);
 
-	const [friends, setFriends] = useState<{ name: string }[]>([]);
-	const searchHandler = () => {
-		let friends = FriendsService.getFriends();
+	const [getClientFriends, { isLoading }] = useLazyGetClientFriendsQuery();
+	const [friends, setFriends] = useState<string[]>([]);
+	useEffect(() => {
+		(async function () {
+			const { data } = await getClientFriends(undefined, false);
+			setFriends(data);
+			SSEService.addListener("friend-remove", (data: RequestMessage) => {
+				setFriends((prev) =>
+					[...prev].filter((friendName) => friendName !== data.username)
+				);
+			});
+		})();
+	}, []);
 
-		if (filter) {
-			friends = friends.filter((friend) =>
-				friend.name.toLowerCase().includes(filter.toLowerCase())
-			);
-		}
-		setFriends(friends);
-	};
-	useEffect(searchHandler, [filter]);
-
-	return { onChange, filter, friends };
+	return { onChange, filter, friends, isLoading };
 };

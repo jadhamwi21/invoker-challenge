@@ -10,4 +10,4 @@ export type FriendStatusResponse =
 	| { status: "pending-your-response"; requestId: string }
 	| { status: "pending-his-response"; requestId: string };
 
-export type FriendRequestMessage = { "request-id": string; username: string };
+export type RequestMessage = { "request-id": string; username: string };

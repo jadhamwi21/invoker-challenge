@@ -1,14 +1,14 @@
 import {
+	useAcceptFriendRequestMutation,
 	useGetFriendStatusQuery,
 	useNewFriendRequestMutation,
 	useRejectFriendRequestMutation,
-	useAcceptFriendRequestMutation,
 	useRemoveFriendMutation,
 } from "@/redux/apis/friends.api";
 import SSEService from "@/services/SSEService";
-import { FriendRequestMessage } from "@/types/friend.types";
+import { RequestMessage } from "@/types/friend.types";
 import { PlayerInfo } from "@/types/player.types";
-import { useEffect, useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 export const usePlayerInfoHeader = (
 	player: Pick<PlayerInfo, "firstname" | "lastname" | "username">
@@ -20,9 +20,7 @@ export const usePlayerInfoHeader = (
 	} = useGetFriendStatusQuery(player.username);
 
 	useEffect(() => {
-		const fetchStatus = (data: FriendRequestMessage) => {
-			console.log(data);
-
+		const fetchStatus = (data: RequestMessage) => {
 			if (data.username === player.username) {
 				refetch();
 			}
@@ -35,8 +33,6 @@ export const usePlayerInfoHeader = (
 		];
 		return () => {
 			ids.forEach((id) => {
-				console.log("unsubscribed from", id);
-
 				SSEService.removeListener(id);
 			});
 		};

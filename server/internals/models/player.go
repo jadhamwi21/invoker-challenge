@@ -46,6 +46,7 @@ type ApiPlayer struct {
 type PlayerLoginResponse struct {
 	FirstName string `json:"firstname"`
 	LastName  string `json:"lastname"`
+	Username  string `json:"username"`
 }
 
 type PlayerInfo struct {

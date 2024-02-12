@@ -9,18 +9,12 @@ export const authApi = createApi({
 		credentials: "include",
 	}),
 	endpoints: (builder) => ({
-		loginPlayer: builder.mutation<
-			Pick<PlayerDetails, "firstname" | "lastname" | "username">,
-			PlayerCredentials
-		>({
+		loginPlayer: builder.mutation<PlayerDetails, PlayerCredentials>({
 			query: (formData) => ({
 				url: "login",
 				method: "POST",
 				body: formData,
 			}),
-			transformResponse: (value, _, arg) => {
-				return { ...(value as any), username: arg.username };
-			},
 		}),
 	}),
 });

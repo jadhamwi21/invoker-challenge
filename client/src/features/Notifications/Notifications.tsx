@@ -2,8 +2,8 @@ import {
 	useGetNotificationsQuery,
 	useUpdateNotificationsToSeenMutation,
 } from "@/redux/apis/notifications.api";
-import React from "react";
 import { useEffectOnce } from "usehooks-ts";
+import NotificationItem from "./components/Item/NotificationItem";
 
 type Props = {};
 
@@ -19,9 +19,10 @@ const Notifications = (props: Props) => {
 		[...data]
 			.sort((a, b) => b.timestamp.localeCompare(a.timestamp))
 			.map((notification) => (
-				<div key={notification.timestamp}>
-					{notification.timestamp} - {notification.text}
-				</div>
+				<NotificationItem
+					notification={notification}
+					key={notification.timestamp}
+				/>
 			))
 	);
 };

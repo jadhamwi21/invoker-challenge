@@ -1,6 +1,4 @@
-// Need to use the React-specific entry point to import createApi
-import { FriendStatusResponse, FriendStatusType } from "@/types/friend.types";
-import { PlayerInfo } from "@/types/player.types";
+import { FriendStatusResponse } from "@/types/friend.types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const friendsApi = createApi({
@@ -16,6 +14,7 @@ export const friendsApi = createApi({
 				url: `friends`,
 				method: "Get",
 				credentials: "include",
+				cache: "no-cache",
 			}),
 		}),
 		getFriendStatus: builder.query<FriendStatusResponse, string>({
@@ -85,4 +84,5 @@ export const {
 	useAcceptFriendRequestMutation,
 	useRejectFriendRequestMutation,
 	useRemoveFriendMutation,
+	useLazyGetClientFriendsQuery,
 } = friendsApi;

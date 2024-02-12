@@ -1,6 +1,6 @@
-import InvokerHead from "@/assets/images/InvokerHead.png";
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
+import Link from "@/components/Link/Link";
 import Loader from "@/components/Loader/Loader";
 import { useErrorToast } from "@/hooks/useErrorToast";
 import { useLoginPlayerMutation } from "@/redux/apis/auth.api";
@@ -37,10 +37,6 @@ const Login = (props: Props) => {
 
 	return (
 		<form className={styles.wrapper} onSubmit={formik.handleSubmit}>
-			<div className={styles.header}>
-				<img src={InvokerHead} />
-			</div>
-
 			<Input
 				label="Username"
 				id="username"
@@ -66,6 +62,7 @@ const Login = (props: Props) => {
 					<Button type="submit">Login</Button>
 				)}
 			</div>
+			<Link to={"/signup"}>Not A Member?</Link>
 		</form>
 	);
 };

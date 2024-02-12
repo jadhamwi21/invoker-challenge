@@ -1,14 +1,14 @@
-import InvokerHead from "@/assets/images/InvokerHead.png";
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
-import { Form, useFormik } from "formik";
+import Link from "@/components/Link/Link";
+import Loader from "@/components/Loader/Loader";
+import { axiosInstance } from "@/utils/utils";
+import { useFormik } from "formik";
+import _ from "lodash";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import * as yup from "yup";
 import styles from "./Signup.module.scss";
-import _ from "lodash";
-import { axiosInstance } from "@/utils/utils";
-import Loader from "@/components/Loader/Loader";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 
 const schema = yup.object().shape({
 	firstname: yup.string().required("First Name is required"),
@@ -53,9 +53,6 @@ const Signup = () => {
 
 	return (
 		<form className={styles.wrapper} onSubmit={formik.handleSubmit}>
-			<div className={styles.header}>
-				<img src={InvokerHead} alt="Invoker Head" />
-			</div>
 			<Input
 				label="First Name"
 				id="firstname"
@@ -104,6 +101,7 @@ const Signup = () => {
 					<Button type="submit">Signup</Button>
 				)}
 			</div>
+			<Link to={"/login"}>Already a member?</Link>
 		</form>
 	);
 };
