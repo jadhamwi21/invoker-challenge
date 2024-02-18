@@ -1,3 +1,4 @@
+import "@radix-ui/themes/styles.css";
 import { Provider } from "react-redux";
 import { RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";

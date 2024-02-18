@@ -1,7 +1,7 @@
-import { KEY_TO_ICON_MAP, KEY_TO_ORB_MAP } from "@/constants/constants";
+import { KEY_TO_ICON_MAP } from "@/constants/constants";
 import { isInvokationKey } from "@/features/Playground/helpers/playground.helpers";
 import { InvokationKeysType as InvokationKeyType } from "@/types/invoker.types";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./Key.module.scss";
 type Props = { value: InvokationKeyType };
 

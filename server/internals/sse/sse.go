@@ -1,6 +1,8 @@
 package sse
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type sseService struct {
 	rooms map[string]chan SSEvent

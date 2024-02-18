@@ -1,9 +1,7 @@
-import React, { useRef } from "react";
-import styles from "./Input.module.scss";
-import _ from "lodash";
-import { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useState } from "react";
+import styles from "./Input.module.scss";
 type Props = {
 	label?: string;
 	wrapperStyles?: React.CSSProperties;

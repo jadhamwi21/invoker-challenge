@@ -11,6 +11,9 @@ export const useDashboardLoader = () => {
 			SSEService.addListener("notification", (data: string) => {
 				toast.success(data);
 			});
+			SSEService.addListener("challenge", (data) => {
+				console.log(data);
+			});
 			setTimeout(() => {
 				setLoading(false);
 			}, 500);

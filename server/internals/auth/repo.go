@@ -35,7 +35,7 @@ func (Repo *AuthRepo) CreateNewPlayer(newPlayer *models.NewPlayer) error {
 
 func (Repo *AuthRepo) AuthenticatePlayer(player *models.PlayerLoginCredentials) (*models.PlayerLoginResponse, string, error) {
 	collection := Repo.Db.Collection("players")
-	playerFilter := bson.D{{"username", player.Username}}
+	playerFilter := bson.D{{Key: "username", Value: player.Username}}
 	var basePlayer models.BasePlayer
 	err := collection.FindOne(context.Background(), playerFilter).Decode(&basePlayer)
 	if err != nil {
@@ -49,7 +49,7 @@ func (Repo *AuthRepo) AuthenticatePlayer(player *models.PlayerLoginCredentials) 
 
 	token, _ := GenerateJwt(&basePlayer)
 
-	playerResponse := &models.PlayerLoginResponse{FirstName: basePlayer.FirstName, LastName: basePlayer.LastName}
+	playerResponse := &models.PlayerLoginResponse{FirstName: basePlayer.FirstName, LastName: basePlayer.LastName, Username: player.Username}
 
 	return playerResponse, token, nil
 }

@@ -10,15 +10,19 @@ import (
 	"github.com/jadhamwi21/invoker-challenge/internals/auth"
 	"github.com/jadhamwi21/invoker-challenge/internals/database"
 	"github.com/jadhamwi21/invoker-challenge/internals/friends"
+	"github.com/jadhamwi21/invoker-challenge/internals/matchmake"
 	"github.com/jadhamwi21/invoker-challenge/internals/notifications"
 	"github.com/jadhamwi21/invoker-challenge/internals/players"
+	"github.com/jadhamwi21/invoker-challenge/internals/redis"
 	"github.com/jadhamwi21/invoker-challenge/internals/sse"
+	"github.com/jadhamwi21/invoker-challenge/internals/ws"
 	"github.com/spf13/viper"
 )
 
 func main() {
 	configs.EnvConfig()
 	db := database.ConnectToDatabase()
+	redis.InitializeRedis()
 
 	app := fiber.New(fiber.Config{ErrorHandler: func(c *fiber.Ctx, err error) error {
 		fmt.Println(err)
@@ -43,6 +47,8 @@ func main() {
 	players.AddPlayersRoutes(app, db)
 	friends.AddFriendsRoutes(app, db)
 	notifications.AddNotificationsRoutes(app, db)
+	matchmake.AddMatchMakeRoutes(app, db)
+	ws.AddWebsocketToApp(app)
 	sse.SetupSSE(app)
 
 	PORT := fmt.Sprintf(":%v", viper.GetString("PORT"))

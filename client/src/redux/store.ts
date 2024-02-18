@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
+import { setupListeners } from "@reduxjs/toolkit/query";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { authApi } from "./apis/auth.api";
-import { setupListeners } from "@reduxjs/toolkit/query";
-import { PlayerReducer } from "./slices/player.slice";
-import { playersApi } from "./apis/players.api";
 import { friendsApi } from "./apis/friends.api";
+import { matchmakeApi } from "./apis/matchmake.api";
 import { notificationsApi } from "./apis/notifications.api";
+import { playersApi } from "./apis/players.api";
+import { PlayReducer } from "./slices/play.slice";
+import { PlayerReducer } from "./slices/player.slice";
 
 export const store = configureStore({
 	reducer: {
@@ -13,7 +15,9 @@ export const store = configureStore({
 		[playersApi.reducerPath]: playersApi.reducer,
 		[friendsApi.reducerPath]: friendsApi.reducer,
 		[notificationsApi.reducerPath]: notificationsApi.reducer,
+		[matchmakeApi.reducerPath]: matchmakeApi.reducer,
 		Player: PlayerReducer,
+		Play: PlayReducer,
 	},
 
 	middleware: (getDefaultMiddleware) =>
@@ -21,6 +25,7 @@ export const store = configureStore({
 			.concat(authApi.middleware)
 			.concat(playersApi.middleware)
 			.concat(friendsApi.middleware)
+			.concat(matchmakeApi.middleware)
 			.concat(notificationsApi.middleware),
 });
 
