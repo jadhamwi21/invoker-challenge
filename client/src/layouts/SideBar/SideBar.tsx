@@ -22,7 +22,7 @@ const SideBar = (props: Props) => {
 			<Profile name={details ? details.username : "..."} />
 			<ul className={styles.list}>
 				<SideBarItem icon={faChartBar} label="Stats" route="stats" />
-				<SideBarItem icon={faGamepad} label="Play" route="play" />
+				<SideBarItem icon={faGamepad} label="Challenge" route="challenge" />
 				<SideBarItem icon={faHandFist} label="Playground" route="playground" />
 				<SideBarItem icon={faUserFriends} label="Players" route="players" />
 				<SideBarItem icon={faUserFriends} label="Friends" route="friends" />

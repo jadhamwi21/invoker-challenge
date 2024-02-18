@@ -1,3 +1,1 @@
-export type MatchConfigurationType = { duration: number };
-
-export type PlayFriendType = string | null;
+export type MatchMakeFriendType = string;

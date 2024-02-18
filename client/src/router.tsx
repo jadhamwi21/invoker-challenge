@@ -3,9 +3,9 @@ import {
 	createBrowserRouter,
 	createRoutesFromElements,
 } from "react-router-dom";
+import Challenge from "./features/Challenge/Challenge";
 import Friends from "./features/Friends/Friends";
 import Notifications from "./features/Notifications/Notifications";
-import Play from "./features/Play/Play";
 import Player from "./features/Player/Player";
 import Players from "./features/Players/Players";
 import Playground from "./features/Playground/Playground";
@@ -27,7 +27,7 @@ export const router = createBrowserRouter(
 				<Route path="friends" element={<Friends />} />
 				<Route path="playground" element={<Playground />} />
 				<Route path="notifications" element={<Notifications />} />
-				<Route path="play" element={<Play />} />
+				<Route path="challenge" element={<Challenge />} />
 			</Route>
 		</Route>
 	)

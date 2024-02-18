@@ -1,26 +1,26 @@
+import AlacrityIcon from "@/assets/images/Alacrity.png";
+import ChaosMeteorIcon from "@/assets/images/Chaos Meteor.png";
+import ColdSnapIcon from "@/assets/images/Cold Snap.png";
+import DeafeningBlastIcon from "@/assets/images/Deafening Blast.png";
+import EmpIcon from "@/assets/images/EMP.png";
+import ExortIcon from "@/assets/images/Exort.png";
+import ExortOriginalIcon from "@/assets/images/Exort_icon.png";
+import ForgeSpiritIcon from "@/assets/images/Forge Spirit.png";
+import GhostWalkIcon from "@/assets/images/Ghost Walk.png";
+import IceWallIcon from "@/assets/images/Ice Wall.png";
+import InvokeIcon from "@/assets/images/Invoke.png";
+import QuasIcon from "@/assets/images/Quas.png";
+import QuasOriginalIcon from "@/assets/images/Quas_icon.png";
+import SunStrikeIcon from "@/assets/images/SunStrike.png";
+import TornadoIcon from "@/assets/images/Tornado.png";
+import WexIcon from "@/assets/images/Wex.png";
+import WexOriginalIcon from "@/assets/images/Wex_icon.png";
 import {
 	EnOrb,
 	EnSpell,
 	InvokationKeysType,
 	OrbKeyType,
 } from "@/types/invoker.types";
-import QuasIcon from "@/assets/images/Quas.png";
-import WexIcon from "@/assets/images/Wex.png";
-import ExortIcon from "@/assets/images/Exort.png";
-import QuasOriginalIcon from "@/assets/images/Quas_icon.png";
-import WexOriginalIcon from "@/assets/images/Wex_icon.png";
-import ExortOriginalIcon from "@/assets/images/Exort_icon.png";
-import InvokeIcon from "@/assets/images/Invoke.png";
-import ColdSnapIcon from "@/assets/images/Cold Snap.png";
-import GhostWalkIcon from "@/assets/images/Ghost Walk.png";
-import IceWallIcon from "@/assets/images/Ice Wall.png";
-import TornadoIcon from "@/assets/images/Tornado.png";
-import EmpIcon from "@/assets/images/EMP.png";
-import AlacrityIcon from "@/assets/images/Alacrity.png";
-import ForgeSpiritIcon from "@/assets/images/Forge Spirit.png";
-import ChaosMeteorIcon from "@/assets/images/Chaos Meteor.png";
-import SunStrikeIcon from "@/assets/images/SunStrike.png";
-import DeafeningBlastIcon from "@/assets/images/Deafening Blast.png";
 
 export const ORB_KEYS: OrbKeyType[] = ["Q", "W", "E"];
 export const INVOKATION_KEYS: InvokationKeysType[] = ["Q", "W", "E", "R"];
@@ -82,3 +82,5 @@ export const SPELLS: EnSpell[] = [
 	EnSpell.SUN_STRIKE,
 	EnSpell.DEAFENING_BLAST,
 ];
+
+export const NUMBER_REGEX = /^-?\d*\.?\d*$/;

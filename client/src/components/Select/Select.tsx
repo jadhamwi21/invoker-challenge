@@ -1,3 +1,5 @@
+import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useRef, useState } from "react";
 import { useOnClickOutside } from "usehooks-ts";
 import styles from "./Select.module.scss";
@@ -49,6 +51,7 @@ const Select = <T extends string | number>({
 							}}
 						>
 							{current.label}
+							{current.value === value && <FontAwesomeIcon icon={faCheck} />}
 						</li>
 					))}
 				</ul>

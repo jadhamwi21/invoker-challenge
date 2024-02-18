@@ -12,7 +12,7 @@ export const useDashboardLoader = () => {
 				toast.success(data);
 			});
 			SSEService.addListener("challenge", (data) => {
-				console.log(data);
+				alert(data.message);
 			});
 			setTimeout(() => {
 				setLoading(false);

@@ -29,5 +29,5 @@ func (Controller *MatchMakeController) InitiateMatch(c *fiber.Ctx) error {
 		fmt.Printf("error sending challenge")
 		return err
 	}
-	return c.Status(fiber.StatusOK).SendString("Challenge Sent")
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Challenge Sent", "code": fiber.StatusOK})
 }

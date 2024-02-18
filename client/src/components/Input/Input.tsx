@@ -1,3 +1,4 @@
+import { NUMBER_REGEX } from "@/constants/constants";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
@@ -8,6 +9,7 @@ type Props = {
 	error?: string;
 	icon?: React.ReactNode;
 	iconOnClick?: () => void;
+	numbers?: boolean;
 } & React.DetailedHTMLProps<
 	React.InputHTMLAttributes<HTMLInputElement>,
 	HTMLInputElement
@@ -19,6 +21,7 @@ const Input = ({
 	error,
 	icon,
 	iconOnClick,
+	numbers = false,
 	...other
 }: Props) => {
 	const [type, setType] = useState(other.type);
@@ -39,6 +42,15 @@ const Input = ({
 				<input
 					className={styles.input}
 					{...other}
+					onChange={(e) => {
+						if (numbers) {
+							if (e.target.value === "" || NUMBER_REGEX.test(e.target.value)) {
+								other.onChange(e);
+							}
+						} else {
+							other.onChange(e);
+						}
+					}}
 					type={type}
 					autoComplete="off"
 					onFocus={onFocus}

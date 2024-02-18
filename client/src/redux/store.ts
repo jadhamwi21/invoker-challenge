@@ -6,7 +6,7 @@ import { friendsApi } from "./apis/friends.api";
 import { matchmakeApi } from "./apis/matchmake.api";
 import { notificationsApi } from "./apis/notifications.api";
 import { playersApi } from "./apis/players.api";
-import { PlayReducer } from "./slices/play.slice";
+import { MatchMakeReducer } from "./slices/matchmake.slice";
 import { PlayerReducer } from "./slices/player.slice";
 
 export const store = configureStore({
@@ -17,7 +17,7 @@ export const store = configureStore({
 		[notificationsApi.reducerPath]: notificationsApi.reducer,
 		[matchmakeApi.reducerPath]: matchmakeApi.reducer,
 		Player: PlayerReducer,
-		Play: PlayReducer,
+		MatchMake: MatchMakeReducer,
 	},
 
 	middleware: (getDefaultMiddleware) =>
