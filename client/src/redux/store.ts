@@ -2,11 +2,11 @@ import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { authApi } from "./apis/auth.api";
+import { challengesApi } from "./apis/challenges.api";
 import { friendsApi } from "./apis/friends.api";
-import { matchmakeApi } from "./apis/matchmake.api";
 import { notificationsApi } from "./apis/notifications.api";
 import { playersApi } from "./apis/players.api";
-import { MatchMakeReducer } from "./slices/matchmake.slice";
+import { ChallengeReducer } from "./slices/challenges.slice";
 import { PlayerReducer } from "./slices/player.slice";
 
 export const store = configureStore({
@@ -15,9 +15,9 @@ export const store = configureStore({
 		[playersApi.reducerPath]: playersApi.reducer,
 		[friendsApi.reducerPath]: friendsApi.reducer,
 		[notificationsApi.reducerPath]: notificationsApi.reducer,
-		[matchmakeApi.reducerPath]: matchmakeApi.reducer,
+		[challengesApi.reducerPath]: challengesApi.reducer,
 		Player: PlayerReducer,
-		MatchMake: MatchMakeReducer,
+		Challenge: ChallengeReducer,
 	},
 
 	middleware: (getDefaultMiddleware) =>
@@ -25,7 +25,7 @@ export const store = configureStore({
 			.concat(authApi.middleware)
 			.concat(playersApi.middleware)
 			.concat(friendsApi.middleware)
-			.concat(matchmakeApi.middleware)
+			.concat(challengesApi.middleware)
 			.concat(notificationsApi.middleware),
 });
 

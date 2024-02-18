@@ -1,14 +1,16 @@
 import Button from "@/components/Button/Button";
 import Loader from "@/components/Loader/Loader";
 import Select from "@/components/Select/Select";
+import { useChallengeMutation } from "@/redux/apis/challenges.api";
 import { useGetClientFriendsQuery } from "@/redux/apis/friends.api";
-import { useChallengeFriendMutation } from "@/redux/apis/matchmake.api";
 import {
-	selectMatchMake,
-	setMatchMakeFriend,
-} from "@/redux/slices/matchmake.slice";
+	selectChallenge,
+	setChallengeFriend,
+	setPendingChallengeId,
+} from "@/redux/slices/challenges.slice";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { useFormik } from "formik";
+import { uniqueId } from "lodash";
 import * as yup from "yup";
 import styles from "./ChallengeForm.module.scss";
 const schema = yup.object().shape({
@@ -18,18 +20,20 @@ type Props = {};
 
 const ChallengeForm = (props: Props) => {
 	const { data, isLoading } = useGetClientFriendsQuery();
-	const initialValues = useAppSelector(selectMatchMake);
+	const initialValues = useAppSelector(selectChallenge);
 
 	const dispatch = useAppDispatch();
-	const [challengeFriend] = useChallengeFriendMutation();
+	const [challenge] = useChallengeMutation();
 	const { isSubmitting, values, errors, setFieldValue, handleSubmit } =
 		useFormik({
 			initialValues,
 			validationSchema: schema,
 			validateOnChange: false,
 			onSubmit(values, { setSubmitting }) {
-				challengeFriend(values.friend)
+				const id = uniqueId("challenge");
+				challenge({ id, username: values.friend })
 					.unwrap()
+					.then(() => dispatch(setPendingChallengeId(id)))
 					.then(() => setSubmitting(false));
 			},
 		});
@@ -41,7 +45,7 @@ const ChallengeForm = (props: Props) => {
 				<>
 					<Select
 						onChange={(val) => {
-							dispatch(setMatchMakeFriend(val));
+							dispatch(setChallengeFriend(val));
 							setFieldValue("friend", val);
 						}}
 						value={values.friend}

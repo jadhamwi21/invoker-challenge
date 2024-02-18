@@ -8,9 +8,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/jadhamwi21/invoker-challenge/configs"
 	"github.com/jadhamwi21/invoker-challenge/internals/auth"
+	"github.com/jadhamwi21/invoker-challenge/internals/challenges"
 	"github.com/jadhamwi21/invoker-challenge/internals/database"
 	"github.com/jadhamwi21/invoker-challenge/internals/friends"
-	"github.com/jadhamwi21/invoker-challenge/internals/matchmake"
 	"github.com/jadhamwi21/invoker-challenge/internals/notifications"
 	"github.com/jadhamwi21/invoker-challenge/internals/players"
 	"github.com/jadhamwi21/invoker-challenge/internals/redis"
@@ -47,7 +47,7 @@ func main() {
 	players.AddPlayersRoutes(app, db)
 	friends.AddFriendsRoutes(app, db)
 	notifications.AddNotificationsRoutes(app, db)
-	matchmake.AddMatchMakeRoutes(app, db)
+	challenges.AddChallengesRoutes(app, db)
 	ws.AddWebsocketToApp(app)
 	sse.SetupSSE(app)
 

@@ -6,7 +6,9 @@ type FriendEvent =
 	| "friend-request:accept"
 	| "friend-request:reject";
 
-type SSEventType = FriendEvent | "notification" | "challenge";
+type ChallengeEvent = "new:challenge" | "accept:challenge" | "deny:challenge";
+
+type SSEventType = FriendEvent | "notification" | ChallengeEvent;
 
 type HandlerPath = `${SSEventType}.${string}`;
 type SSEMessageType = { type: SSEventType; data: any };
@@ -22,7 +24,9 @@ export default class SSEService {
 		"friend-request:reject": {},
 		"friend-remove": {},
 		notification: {},
-		challenge: {},
+		"new:challenge": {},
+		"accept:challenge": {},
+		"deny:challenge": {},
 	};
 	public static async setup() {
 		this.sse = new EventSource(`${import.meta.env.VITE_BASE_URL}/sse`, {

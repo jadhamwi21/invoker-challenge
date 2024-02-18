@@ -1,0 +1,25 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 1em;
+}
+
+.text {
+	color: var(--blue);
+	font-size: 14px;
+}
+
+.swords_icon {
+	height: 100px;
+	width: 100px;
+}
+
+.buttons_wrapper {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	gap: 1em;
+}

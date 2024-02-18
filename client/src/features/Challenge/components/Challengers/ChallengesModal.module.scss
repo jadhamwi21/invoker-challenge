@@ -1,0 +1,7 @@
+.container {
+	padding: 1em;
+}
+
+.container > div:first-child {
+	height: 50px;
+}

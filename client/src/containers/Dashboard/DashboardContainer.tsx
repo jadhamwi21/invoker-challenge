@@ -1,4 +1,5 @@
 import Loader from "@/components/Loader/Loader";
+import ChallengesModal from "@/features/Challenge/components/Challengers/ChallengesModal";
 import Transition from "@/layouts/Transitions/Transitions";
 import { AnimatePresence } from "framer-motion";
 import React from "react";
@@ -20,6 +21,7 @@ const DashboardContainer = ({ children }: Props) => {
 					children
 				)}
 			</Transition>
+			<ChallengesModal />
 		</AnimatePresence>
 	);
 };
