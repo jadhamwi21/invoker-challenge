@@ -2,7 +2,6 @@ package challenges
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/jadhamwi21/invoker-challenge/constants"
 	"github.com/jadhamwi21/invoker-challenge/internals/models"
 	"github.com/jadhamwi21/invoker-challenge/internals/sse"
 )
@@ -28,43 +27,35 @@ func (c *ChallengesController) SendChallenge(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	event := sse.NewSSEvent(constants.NEW_CHALLENGE_EVENT, challenge)
+	event := sse.NewSSEvent(NEW_CHALLENGE_EVENT, challenge)
 	sse.SseService.SendEventToUser(newChallenge.Username, event)
 
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Challenge Sent", "code": fiber.StatusOK})
 }
 
-func (c *ChallengesController) AcceptChallenge(ctx *fiber.Ctx) error {
-	challengeID := getChallengeIDFromContext(ctx)
+func (c *ChallengesController) HandleChallengeAction(ctx *fiber.Ctx) error {
+	challengeID, action := getChallengeParams(ctx)
 	if challengeID == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "Challenge ID is required")
 	}
-
-	return nil
-}
-
-func (c *ChallengesController) DenyChallenge(ctx *fiber.Ctx) error {
-	challengeID := getChallengeIDFromContext(ctx)
-	if challengeID == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "Challenge ID is required")
+	if action != CHALLENGE_ACCEPT_ACTION && action != CHALLENGE_DENY_ACTION {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid Action")
 	}
-
 	challenge, err := c.Repo.GetChallengeByID(ctx.Context(), challengeID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	err = c.Repo.DeleteChallenge(ctx.Context(), challengeID)
+	err = c.Repo.ClearChallenge(ctx.Context(), challengeID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-
-	event := sse.NewSSEvent(constants.DENY_CHALLENGE_EVENT, challenge.ID)
+	event := sse.NewSSEvent(CHALLENGE_ACTION_MAP[action], challenge.ID)
 	sse.SseService.SendEventToUser(challenge.Sender, event)
 
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Challenge Denied", "code": fiber.StatusOK})
+	return nil
 }
 
-func getChallengeIDFromContext(ctx *fiber.Ctx) string {
-	return ctx.Params("challengeId")
+func getChallengeParams(ctx *fiber.Ctx) (string, string) {
+	return ctx.Params("challengeId"), ctx.Params("action")
 }

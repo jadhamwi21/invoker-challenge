@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/jadhamwi21/invoker-challenge/constants"
 	"github.com/jadhamwi21/invoker-challenge/internals/models"
 	"github.com/redis/go-redis/v9"
 )
@@ -20,7 +19,7 @@ func NewChallengesRepo(redis *redis.Client) *ChallengesRepo {
 
 func (r *ChallengesRepo) StoreNewChallenge(ctx context.Context, challenge models.Challenge) error {
 	data, _ := json.Marshal(challenge)
-	err := r.Redis.HSet(ctx, constants.REDIS_CHALLENGES_HASH, challenge.ID, data).Err()
+	err := r.Redis.HSet(ctx, REDIS_CHALLENGES_HASH, challenge.ID, data).Err()
 	if err != nil {
 		return fmt.Errorf("failed to store challenge: %w", err)
 	}
@@ -28,7 +27,7 @@ func (r *ChallengesRepo) StoreNewChallenge(ctx context.Context, challenge models
 }
 
 func (r *ChallengesRepo) GetChallengeByID(ctx context.Context, challengeID string) (*models.Challenge, error) {
-	value, err := r.Redis.HGet(ctx, constants.REDIS_CHALLENGES_HASH, challengeID).Result()
+	value, err := r.Redis.HGet(ctx, REDIS_CHALLENGES_HASH, challengeID).Result()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get challenge: %w", err)
 	}
@@ -39,8 +38,8 @@ func (r *ChallengesRepo) GetChallengeByID(ctx context.Context, challengeID strin
 	return challenge, nil
 }
 
-func (r *ChallengesRepo) DeleteChallenge(ctx context.Context, challengeID string) error {
-	if err := r.Redis.HDel(ctx, constants.REDIS_CHALLENGES_HASH, challengeID).Err(); err != nil {
+func (r *ChallengesRepo) ClearChallenge(ctx context.Context, challengeID string) error {
+	if err := r.Redis.HDel(ctx, REDIS_CHALLENGES_HASH, challengeID).Err(); err != nil {
 		return fmt.Errorf("failed to delete challenge: %w", err)
 	}
 	return nil

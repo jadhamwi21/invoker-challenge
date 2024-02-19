@@ -1,0 +1,12 @@
+package challenges
+
+const (
+	REDIS_CHALLENGES_HASH   = "challenges"
+	CHALLENGE_ACCEPT_ACTION = "accept"
+	CHALLENGE_DENY_ACTION   = "deny"
+	DENY_CHALLENGE_EVENT    = "deny:challenge"
+	NEW_CHALLENGE_EVENT     = "new:challenge"
+	ACCEPT_CHALLENGE_EVENT  = "accept:challenge"
+)
+
+var CHALLENGE_ACTION_MAP = map[string]string{CHALLENGE_ACCEPT_ACTION: ACCEPT_CHALLENGE_EVENT, CHALLENGE_DENY_ACTION: DENY_CHALLENGE_EVENT}
