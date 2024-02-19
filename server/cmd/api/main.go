@@ -22,7 +22,7 @@ import (
 func main() {
 	configs.EnvConfig()
 	db := database.ConnectToDatabase()
-	redis.InitializeRedis()
+	redis := redis.InitializeRedis()
 
 	app := fiber.New(fiber.Config{ErrorHandler: func(c *fiber.Ctx, err error) error {
 		fmt.Println(err)
@@ -47,7 +47,7 @@ func main() {
 	players.AddPlayersRoutes(app, db)
 	friends.AddFriendsRoutes(app, db)
 	notifications.AddNotificationsRoutes(app, db)
-	challenges.AddChallengesRoutes(app, db)
+	challenges.AddChallengesRoutes(app, redis)
 	ws.AddWebsocketToApp(app)
 	sse.SetupSSE(app)
 
