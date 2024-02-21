@@ -3,14 +3,14 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { challengesApi } from "../apis/challenges.api";
 import { RootState } from "../store";
 
-type MatchMakeState = {
+type ChallengesState = {
 	friend: string;
 	duration: string;
 	pendingChallengeId: string;
 	challenges: Challenge[];
 };
 
-const initialState: MatchMakeState = {
+const initialState: ChallengesState = {
 	friend: "",
 	duration: "1",
 	pendingChallengeId: null,
@@ -18,7 +18,7 @@ const initialState: MatchMakeState = {
 };
 
 const slice = createSlice({
-	name: "play",
+	name: "challenges",
 	initialState,
 	reducers: {
 		setChallengeFriend: (state, { payload: friend }: PayloadAction<string>) => {
@@ -39,8 +39,13 @@ const slice = createSlice({
 		) => {
 			state.challenges.push(challenge);
 		},
-		popChallenger: (state) => {
+		popChallenge: (state) => {
 			state.challenges.shift();
+		},
+		removeChallengeById: (state, { payload }: PayloadAction<string>) => {
+			state.challenges = state.challenges.filter(
+				(challenge) => challenge.id === payload
+			);
 		},
 		clearChallengers: (state) => {
 			state.challenges = [];
@@ -61,6 +66,12 @@ const slice = createSlice({
 				state.challenges.shift();
 			}
 		);
+		builder.addMatcher(
+			challengesApi.endpoints.cancelChallenge.matchFulfilled,
+			(state) => {
+				state.pendingChallengeId = null;
+			}
+		);
 	},
 });
 
@@ -69,9 +80,10 @@ export const {
 	setChallengeFriend,
 	setChallengeDuration,
 	pushNewChallenge,
-	popChallenger,
+	popChallenge,
 	clearChallengers,
 	setPendingChallengeId,
+	removeChallengeById,
 } = slice.actions;
 
 export const selectChallenge = (state: RootState) => state.Challenge;

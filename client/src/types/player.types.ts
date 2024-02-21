@@ -2,6 +2,7 @@ export type PlayerDetails = {
 	username: string;
 	firstname: string;
 	lastname: string;
+	token: string;
 };
 
 export type PlayerCredentials = {

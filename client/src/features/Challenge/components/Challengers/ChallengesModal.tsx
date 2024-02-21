@@ -8,13 +8,7 @@ type Props = {};
 const ChallengesModal = (props: Props) => {
 	const { challenges } = useAppSelector(selectChallenge);
 	return (
-		<Modal
-			opened={challenges.length !== 0}
-			closeBehavior={"none"}
-			closeHandler={function (): void {
-				throw new Error("Function not implemented.");
-			}}
-		>
+		<Modal opened={challenges.length !== 0} closeBehavior={"none"}>
 			<div className={styles.container}>
 				<div>{challenges.length > 1 && `${challenges.length - 1} Left`}</div>
 				{challenges.length !== 0 && <Challenge challenge={challenges[0]} />}

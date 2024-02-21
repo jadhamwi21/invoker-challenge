@@ -49,7 +49,7 @@ func (Repo *AuthRepo) AuthenticatePlayer(player *models.PlayerLoginCredentials) 
 
 	token, _ := GenerateJwt(&basePlayer)
 
-	playerResponse := &models.PlayerLoginResponse{FirstName: basePlayer.FirstName, LastName: basePlayer.LastName, Username: player.Username}
+	playerResponse := &models.PlayerLoginResponse{Token: token, FirstName: basePlayer.FirstName, LastName: basePlayer.LastName, Username: player.Username}
 
 	return playerResponse, token, nil
 }

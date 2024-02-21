@@ -28,6 +28,12 @@ export const challengesApi = createApi({
 				method: "DELETE",
 			}),
 		}),
+		cancelChallenge: builder.mutation<void, string>({
+			query: (id) => ({
+				url: `/${id}/cancel`,
+				method: "DELETE",
+			}),
+		}),
 	}),
 });
 
@@ -35,4 +41,5 @@ export const {
 	useChallengeMutation,
 	useAcceptChallengeMutation,
 	useDenyChallengeMutation,
+	useCancelChallengeMutation,
 } = challengesApi;

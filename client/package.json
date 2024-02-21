@@ -23,6 +23,7 @@
 		"formik": "^2.4.5",
 		"framer-motion": "^10.16.16",
 		"lodash": "^4.17.21",
+		"milliseconds": "^1.0.3",
 		"moment": "^2.30.1",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
@@ -36,6 +37,7 @@
 	},
 	"devDependencies": {
 		"@types/lodash": "^4.14.202",
+		"@types/milliseconds": "^0.0.33",
 		"@types/node": "^20.10.5",
 		"@types/react": "^18.2.43",
 		"@types/react-dom": "^18.2.17",

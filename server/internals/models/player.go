@@ -47,6 +47,7 @@ type PlayerLoginResponse struct {
 	FirstName string `json:"firstname"`
 	LastName  string `json:"lastname"`
 	Username  string `json:"username"`
+	Token     string `json:"token"`
 }
 
 type PlayerInfo struct {

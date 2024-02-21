@@ -7,6 +7,7 @@ import { friendsApi } from "./apis/friends.api";
 import { notificationsApi } from "./apis/notifications.api";
 import { playersApi } from "./apis/players.api";
 import { ChallengeReducer } from "./slices/challenges.slice";
+import { MatchReducer } from "./slices/match.slice";
 import { PlayerReducer } from "./slices/player.slice";
 
 export const store = configureStore({
@@ -18,6 +19,7 @@ export const store = configureStore({
 		[challengesApi.reducerPath]: challengesApi.reducer,
 		Player: PlayerReducer,
 		Challenge: ChallengeReducer,
+		Match: MatchReducer,
 	},
 
 	middleware: (getDefaultMiddleware) =>

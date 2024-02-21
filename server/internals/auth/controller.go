@@ -57,7 +57,7 @@ func (Controller *AuthController) LoginHandler(c *fiber.Ctx) error {
 		return err
 	}
 	c.Cookie(&fiber.Cookie{Name: "jwt", Value: token})
-	fmt.Println(response)
+
 	return c.Status(fiber.StatusOK).JSON(response)
 
 }

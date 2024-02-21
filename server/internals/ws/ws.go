@@ -10,7 +10,8 @@ import (
 )
 
 func AddWebsocketToApp(app *fiber.App) {
-	app.Use("/ws", auth.Protected, websocketMiddleware, websocket.New(func(c *websocket.Conn) {
+	app.Use("/ws/:sessionId", auth.Protected, websocketMiddleware, websocket.New(func(c *websocket.Conn) {
+
 		for {
 			time.Sleep(time.Second * 1)
 			c.WriteMessage(1, []byte(fmt.Sprintf("hello there %v", c.Locals("username"))))

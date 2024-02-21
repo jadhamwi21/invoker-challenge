@@ -2,6 +2,7 @@ package challenges
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/jadhamwi21/invoker-challenge/internals/models"
 	"github.com/jadhamwi21/invoker-challenge/internals/sse"
 )
@@ -34,13 +35,23 @@ func (c *ChallengesController) SendChallenge(ctx *fiber.Ctx) error {
 }
 
 func (c *ChallengesController) HandleChallengeAction(ctx *fiber.Ctx) error {
-	challengeID, action := getChallengeParams(ctx)
+
+	challengeID := ctx.Params("challengeId")
+	action := ctx.Params("action")
+
 	if challengeID == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "Challenge ID is required")
 	}
-	if action != CHALLENGE_ACCEPT_ACTION && action != CHALLENGE_DENY_ACTION {
+
+	validActions := map[string]bool{
+		CHALLENGE_ACCEPT_ACTION: true,
+		CHALLENGE_DENY_ACTION:   true,
+		CHALLENGE_CANCEL_ACTION: true,
+	}
+	if !validActions[action] {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid Action")
 	}
+
 	challenge, err := c.Repo.GetChallengeByID(ctx.Context(), challengeID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
@@ -50,12 +61,23 @@ func (c *ChallengesController) HandleChallengeAction(ctx *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
+
+	var recipient string
+	if action == CHALLENGE_CANCEL_ACTION {
+		recipient = challenge.Receiver
+	} else {
+		recipient = challenge.Sender
+	}
+
 	event := sse.NewSSEvent(CHALLENGE_ACTION_MAP[action], challenge.ID)
-	sse.SseService.SendEventToUser(challenge.Sender, event)
+	sse.SseService.SendEventToUser(recipient, event)
+
+	if action == CHALLENGE_ACCEPT_ACTION {
+		sessionID := uuid.New()
+		sessionEvent := sse.NewSSEvent(SESSION_CREATE_EVENT, sessionID)
+		sse.SseService.SendEventToUser(challenge.Sender, sessionEvent)
+		sse.SseService.SendEventToUser(challenge.Receiver, sessionEvent)
+	}
 
 	return nil
-}
-
-func getChallengeParams(ctx *fiber.Ctx) (string, string) {
-	return ctx.Params("challengeId"), ctx.Params("action")
 }

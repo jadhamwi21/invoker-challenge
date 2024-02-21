@@ -10,7 +10,7 @@ import {
 } from "@/redux/slices/challenges.slice";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { useFormik } from "formik";
-import { uniqueId } from "lodash";
+import { v4 as uuid } from "uuid";
 import * as yup from "yup";
 import styles from "./ChallengeForm.module.scss";
 const schema = yup.object().shape({
@@ -19,7 +19,7 @@ const schema = yup.object().shape({
 type Props = {};
 
 const ChallengeForm = (props: Props) => {
-	const { data, isLoading } = useGetClientFriendsQuery();
+	const { data, isLoading, isError } = useGetClientFriendsQuery();
 	const initialValues = useAppSelector(selectChallenge);
 
 	const dispatch = useAppDispatch();
@@ -30,13 +30,15 @@ const ChallengeForm = (props: Props) => {
 			validationSchema: schema,
 			validateOnChange: false,
 			onSubmit(values, { setSubmitting }) {
-				const id = uniqueId("challenge");
+				const id = uuid();
 				challenge({ id, username: values.friend })
 					.unwrap()
 					.then(() => dispatch(setPendingChallengeId(id)))
 					.then(() => setSubmitting(false));
 			},
 		});
+
+	if (isError) return <div>An error has occured</div>;
 	return (
 		<form className={styles.container} onSubmit={handleSubmit}>
 			{isLoading ? (

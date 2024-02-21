@@ -10,7 +10,7 @@ type Props = {
 	children: React.ReactNode;
 	opened: boolean;
 	closeBehavior: CloseBehavior;
-	closeHandler: () => void;
+	closeHandler?: () => void;
 };
 
 const Modal = ({
@@ -29,16 +29,18 @@ const Modal = ({
 		}
 	});
 	return (
-		<div className={classes}>
-			<div className={styles.children} ref={ref}>
-				{closeBehavior === "on-x" && (
-					<div className={styles.close_wrapper}>
-						<FontAwesomeIcon icon={faClose} />
-					</div>
-				)}
-				{children}
+		opened && (
+			<div className={classes}>
+				<div className={styles.children} ref={ref}>
+					{closeBehavior === "on-x" && (
+						<div className={styles.close_wrapper}>
+							<FontAwesomeIcon icon={faClose} />
+						</div>
+					)}
+					{children}
+				</div>
 			</div>
-		</div>
+		)
 	);
 };
 
