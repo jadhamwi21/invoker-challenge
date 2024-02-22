@@ -11,6 +11,6 @@ func AddChallengesRoutes(app *fiber.App, redis *redis.Client) {
 	repo := NewChallengesRepo(redis)
 	controller := NewChallengesController(repo)
 	router.Use(auth.Protected)
-	router.Post("/", controller.SendChallenge)
-	router.Delete("/:challengeId/:action", controller.HandleChallengeAction)
+	router.Post("/", controller.SendChallengeHandler)
+	router.Delete("/:challengeId/:action", controller.ChallengeActionHandler)
 }

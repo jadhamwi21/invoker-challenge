@@ -4,10 +4,11 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { authApi } from "./apis/auth.api";
 import { challengesApi } from "./apis/challenges.api";
 import { friendsApi } from "./apis/friends.api";
+import { gamesApi } from "./apis/games.api";
 import { notificationsApi } from "./apis/notifications.api";
 import { playersApi } from "./apis/players.api";
 import { ChallengeReducer } from "./slices/challenges.slice";
-import { MatchReducer } from "./slices/match.slice";
+import { GameReducer } from "./slices/game.slice";
 import { PlayerReducer } from "./slices/player.slice";
 
 export const store = configureStore({
@@ -17,9 +18,10 @@ export const store = configureStore({
 		[friendsApi.reducerPath]: friendsApi.reducer,
 		[notificationsApi.reducerPath]: notificationsApi.reducer,
 		[challengesApi.reducerPath]: challengesApi.reducer,
+		[gamesApi.reducerPath]: gamesApi.reducer,
 		Player: PlayerReducer,
 		Challenge: ChallengeReducer,
-		Match: MatchReducer,
+		Game: GameReducer,
 	},
 
 	middleware: (getDefaultMiddleware) =>
@@ -28,6 +30,7 @@ export const store = configureStore({
 			.concat(playersApi.middleware)
 			.concat(friendsApi.middleware)
 			.concat(challengesApi.middleware)
+			.concat(gamesApi.middleware)
 			.concat(notificationsApi.middleware),
 });
 

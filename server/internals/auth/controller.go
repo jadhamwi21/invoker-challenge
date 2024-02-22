@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"fmt"
-
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jadhamwi21/invoker-challenge/internals/models"
@@ -46,7 +44,6 @@ func (Controller *AuthController) LoginHandler(c *fiber.Ctx) error {
 	if err := c.BodyParser(body); err != nil {
 		return err
 	}
-	fmt.Println("LOGIN")
 
 	validate := validator.New()
 	if err := validate.Struct(body); err != nil {

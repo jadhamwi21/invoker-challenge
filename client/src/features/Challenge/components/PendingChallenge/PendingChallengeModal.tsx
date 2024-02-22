@@ -4,6 +4,7 @@ import HappinesIcon from "@/assets/images/happiness.png";
 import Button from "@/components/Button/Button";
 import Loader from "@/components/Loader/Loader";
 import { useCancelChallengeMutation } from "@/redux/apis/challenges.api";
+import { useNewGameMutation } from "@/redux/apis/games.api";
 import {
 	selectChallenge,
 	setPendingChallengeId,
@@ -38,9 +39,10 @@ const ButtonTextMap: Record<
 
 const PendingChallengeModal = (props: Props) => {
 	const dispatch = useAppDispatch();
-	const { pendingChallengeId } = useAppSelector(selectChallenge);
+	const { pendingChallengeId, friend } = useAppSelector(selectChallenge);
 	const [response, setResponse] = useState<ChallengeRequestReply>("unknown");
 	const [cancelChallenge] = useCancelChallengeMutation();
+	const [newGame] = useNewGameMutation();
 	useEffect(() => {
 		const ids = [
 			SSEService.addListener("deny:challenge", (id) => {
@@ -52,6 +54,9 @@ const PendingChallengeModal = (props: Props) => {
 				if (id == pendingChallengeId) {
 					setResponse("accepted");
 				}
+			}),
+			SSEService.addListener("create:session", (sessionId: string) => {
+				newGame({ sessionId: sessionId, opponent: friend });
 			}),
 		];
 		return () => ids.forEach((id) => SSEService.removeListener(id));

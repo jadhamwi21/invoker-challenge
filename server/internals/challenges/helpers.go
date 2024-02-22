@@ -2,6 +2,7 @@ package challenges
 
 const (
 	REDIS_CHALLENGES_HASH   = "challenges"
+	REDIS_SESSIONS_HASH     = "sessions"
 	CHALLENGE_ACCEPT_ACTION = "accept"
 	CHALLENGE_DENY_ACTION   = "deny"
 	CHALLENGE_CANCEL_ACTION = "cancel"

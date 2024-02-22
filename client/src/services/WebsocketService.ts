@@ -1,4 +1,4 @@
-import { setMatchConnectionStatus } from "@/redux/slices/match.slice";
+import { setGameConnectionStatus } from "@/redux/slices/game.slice";
 import { store } from "@/redux/store";
 import { EnMatchConnectionStatus } from "@/types/game.types";
 
@@ -18,13 +18,11 @@ export default class WebsocketService {
 				console.log(ev.data);
 			};
 			this.ws.onopen = () => {
-				dispatch(setMatchConnectionStatus(EnMatchConnectionStatus.Connected));
+				dispatch(setGameConnectionStatus(EnMatchConnectionStatus.Connected));
 				resolve();
 			};
 			this.ws.onclose = () => {
-				dispatch(
-					setMatchConnectionStatus(EnMatchConnectionStatus.Disconnected)
-				);
+				dispatch(setGameConnectionStatus(EnMatchConnectionStatus.Disconnected));
 			};
 			this.ws.onerror = (e) => {
 				console.log(e);

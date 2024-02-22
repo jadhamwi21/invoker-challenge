@@ -13,10 +13,10 @@ const initialState: MatchState = {
 };
 
 const slice = createSlice({
-	name: "match",
+	name: "game",
 	initialState,
 	reducers: {
-		setMatchConnectionStatus: (
+		setGameConnectionStatus: (
 			state,
 			{ payload }: PayloadAction<EnMatchConnectionStatus>
 		) => {
@@ -28,6 +28,6 @@ const slice = createSlice({
 	},
 });
 
-export const MatchReducer = slice.reducer;
-export const { setMatchConnectionStatus, setSessionID } = slice.actions;
-export const selectMatch = (state: RootState) => state.Match;
+export const GameReducer = slice.reducer;
+export const { setGameConnectionStatus, setSessionID } = slice.actions;
+export const selectGame = (state: RootState) => state.Game;

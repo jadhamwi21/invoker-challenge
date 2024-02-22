@@ -3,8 +3,10 @@ import { v4 as uuid } from "uuid";
 type FriendEvent =
 	| "friend-request"
 	| "friend-remove"
-	| "friend-request:accept"
-	| "friend-request:reject";
+	| "accept:friend-request"
+	| "reject:friend-request";
+
+type GameEvent = "start:game";
 
 type ChallengeEvent =
 	| "new:challenge"
@@ -14,7 +16,12 @@ type ChallengeEvent =
 
 type SessionEvent = "create:session";
 
-type SSEventType = FriendEvent | "notification" | ChallengeEvent | SessionEvent;
+type SSEventType =
+	| FriendEvent
+	| "notification"
+	| ChallengeEvent
+	| SessionEvent
+	| GameEvent;
 
 type HandlerPath = `${SSEventType}.${string}`;
 type SSEMessageType = { type: SSEventType; data: any };
@@ -26,8 +33,8 @@ export default class SSEService {
 		Record<string, (data: any) => void>
 	> = {
 		"friend-request": {},
-		"friend-request:accept": {},
-		"friend-request:reject": {},
+		"accept:friend-request": {},
+		"reject:friend-request": {},
 		"friend-remove": {},
 		notification: {},
 		"new:challenge": {},
@@ -35,6 +42,7 @@ export default class SSEService {
 		"deny:challenge": {},
 		"cancel:challenge": {},
 		"create:session": {},
+		"start:game": {},
 	};
 	public static async setup() {
 		this.sse = new EventSource(`${import.meta.env.VITE_BASE_URL}/sse`, {

@@ -15,7 +15,7 @@ func NewChallengesController(repo *ChallengesRepo) *ChallengesController {
 	return &ChallengesController{Repo: repo}
 }
 
-func (c *ChallengesController) SendChallenge(ctx *fiber.Ctx) error {
+func (c *ChallengesController) SendChallengeHandler(ctx *fiber.Ctx) error {
 	senderUsername := ctx.Locals("username").(string)
 	newChallenge := &models.NewChallengeBody{}
 	if err := ctx.BodyParser(newChallenge); err != nil {
@@ -29,12 +29,12 @@ func (c *ChallengesController) SendChallenge(ctx *fiber.Ctx) error {
 	}
 
 	event := sse.NewSSEvent(NEW_CHALLENGE_EVENT, challenge)
-	sse.SseService.SendEventToUser(newChallenge.Username, event)
+	go sse.SseService.SendEventToUser(newChallenge.Username, event)
 
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Challenge Sent", "code": fiber.StatusOK})
 }
 
-func (c *ChallengesController) HandleChallengeAction(ctx *fiber.Ctx) error {
+func (c *ChallengesController) ChallengeActionHandler(ctx *fiber.Ctx) error {
 
 	challengeID := ctx.Params("challengeId")
 	action := ctx.Params("action")
@@ -74,9 +74,13 @@ func (c *ChallengesController) HandleChallengeAction(ctx *fiber.Ctx) error {
 
 	if action == CHALLENGE_ACCEPT_ACTION {
 		sessionID := uuid.New()
+		err := c.Repo.SaveSession(ctx.Context(), sessionID, challenge.Sender, challenge.Receiver)
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, "An error has occured")
+		}
 		sessionEvent := sse.NewSSEvent(SESSION_CREATE_EVENT, sessionID)
-		sse.SseService.SendEventToUser(challenge.Sender, sessionEvent)
-		sse.SseService.SendEventToUser(challenge.Receiver, sessionEvent)
+		go sse.SseService.SendEventToUser(challenge.Sender, sessionEvent)
+		go sse.SseService.SendEventToUser(challenge.Receiver, sessionEvent)
 	}
 
 	return nil

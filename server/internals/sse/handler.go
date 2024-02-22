@@ -42,6 +42,6 @@ func SSEHandler(c *fiber.Ctx) error {
 
 func SSEDisconnectHandler(c *fiber.Ctx) error {
 	username := c.Locals("username").(string)
-	SseService.SendEventToUser(username, NewExitEvent())
+	go SseService.SendEventToUser(username, NewExitEvent())
 	return nil
 }

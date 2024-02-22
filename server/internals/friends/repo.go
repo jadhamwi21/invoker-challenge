@@ -64,7 +64,7 @@ func (Repo *FriendsRepo) FriendRequest(clientUsername string, friendUsername str
 	if err != nil {
 		return err
 	}
-	sse.SseService.SendEventToUser(friendUsername, sse.NewSSEvent("friend-request", map[string]interface{}{"request-id": friendRequest.ID, "username": clientUsername}))
+	go sse.SseService.SendEventToUser(friendUsername, sse.NewSSEvent(FRIEND_REQUEST_EVENT, map[string]interface{}{"request-id": friendRequest.ID, "username": clientUsername}))
 
 	return nil
 }
@@ -104,12 +104,12 @@ func (Repo *FriendsRepo) AcceptFriendRequest(clientUsername string, requestId st
 
 	playersCollection.FindOne(context.Background(), requesterFilter).Decode(requester)
 	fmt.Println(requester.Username, clientUsername)
-	sse.SseService.SendEventToUser(requester.Username, sse.NewSSEvent("friend-request:accept", map[string]interface{}{"request-id": requestId, "username": client.Username}))
+	go sse.SseService.SendEventToUser(requester.Username, sse.NewSSEvent(ACCEPT_FRIEND_REQUEST_EVENT, map[string]interface{}{"request-id": requestId, "username": client.Username}))
 
 	notification := &models.Notification{ID: primitive.NewObjectID(), UserID: request.Requester, Timestamp: primitive.NewDateTimeFromTime(time.Now()), Text: fmt.Sprintf("Your friend request to %v was accepted", client.Username)}
 	notificationsCollection := Repo.Db.Collection("notifications")
 	notificationsCollection.InsertOne(context.Background(), notification)
-	sse.SseService.SendEventToUser(requester.Username, sse.NewSSEvent("notification", notification.Text))
+	go sse.SseService.SendEventToUser(requester.Username, sse.NewSSEvent("notification", notification.Text))
 	friendsRequestsCollection.DeleteOne(context.Background(), bson.M{"_id": request.ID})
 	return nil
 }
@@ -145,13 +145,13 @@ func (Repo *FriendsRepo) RejectFriendRequest(clientUsername string, requestId st
 		requesterFilter := bson.M{"_id": request.Requester}
 		playersCollection.FindOne(context.Background(), requesterFilter).Decode(requester)
 		fmt.Println("sent")
-		sse.SseService.SendEventToUser(requester.Username, sse.NewSSEvent("friend-request:reject", map[string]interface{}{"request-id": requestId, "username": client.Username}))
+		go sse.SseService.SendEventToUser(requester.Username, sse.NewSSEvent(REJECT_FRIEND_REQUEST_EVENT, map[string]interface{}{"request-id": requestId, "username": client.Username}))
 	} else {
 		requestee := &models.BasePlayer{}
 		requesteeFilter := bson.M{"_id": request.Requestee}
 		playersCollection.FindOne(context.Background(), requesteeFilter).Decode(requestee)
 		fmt.Println("sent")
-		sse.SseService.SendEventToUser(requestee.Username, sse.NewSSEvent("friend-request:reject", map[string]interface{}{"request-id": requestId, "username": client.Username}))
+		go sse.SseService.SendEventToUser(requestee.Username, sse.NewSSEvent(REJECT_FRIEND_REQUEST_EVENT, map[string]interface{}{"request-id": requestId, "username": client.Username}))
 	}
 	return nil
 }
@@ -264,7 +264,7 @@ func (Repo *FriendsRepo) RemoveFriend(clientId primitive.ObjectID, friendUsernam
 	player := &models.BasePlayer{}
 	playersCollection.FindOne(context.Background(), bson.M{"_id": clientId}).Decode(player)
 
-	sse.SseService.SendEventToUser(friend.Username, sse.NewSSEvent("friend-remove", map[string]interface{}{"username": player.Username}))
+	go sse.SseService.SendEventToUser(friend.Username, sse.NewSSEvent("friend-remove", map[string]interface{}{"username": player.Username}))
 
 	return nil
 }

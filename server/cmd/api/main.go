@@ -11,6 +11,7 @@ import (
 	"github.com/jadhamwi21/invoker-challenge/internals/challenges"
 	"github.com/jadhamwi21/invoker-challenge/internals/database"
 	"github.com/jadhamwi21/invoker-challenge/internals/friends"
+	"github.com/jadhamwi21/invoker-challenge/internals/games"
 	"github.com/jadhamwi21/invoker-challenge/internals/notifications"
 	"github.com/jadhamwi21/invoker-challenge/internals/players"
 	"github.com/jadhamwi21/invoker-challenge/internals/redis"
@@ -25,7 +26,7 @@ func main() {
 	redis := redis.InitializeRedis()
 
 	app := fiber.New(fiber.Config{ErrorHandler: func(c *fiber.Ctx, err error) error {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		if err, ok := err.(*fiber.Error); ok {
 			c.Status(err.Code)
 			return c.JSON(fiber.Map{"code": err.Code, "message": err.Message})
@@ -48,7 +49,8 @@ func main() {
 	friends.AddFriendsRoutes(app, db)
 	notifications.AddNotificationsRoutes(app, db)
 	challenges.AddChallengesRoutes(app, redis)
-	ws.AddWebsocketToApp(app)
+	games.AddGamesRoutes(app, redis)
+	ws.AddWebsocketToApp(app, redis)
 	sse.SetupSSE(app)
 
 	PORT := fmt.Sprintf(":%v", viper.GetString("PORT"))

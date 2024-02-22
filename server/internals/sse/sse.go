@@ -29,7 +29,6 @@ func (SseService *sseService) SendEventToUser(username string, event SSEvent) er
 		return nil
 	}
 	channel := SseService.rooms[username]
-	fmt.Println("sent event to ", username)
 	go func() {
 		channel <- event
 	}()

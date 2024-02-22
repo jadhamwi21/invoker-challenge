@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jadhamwi21/invoker-challenge/internals/models"
 	"github.com/redis/go-redis/v9"
 )
@@ -22,6 +23,16 @@ func (r *ChallengesRepo) StoreNewChallenge(ctx context.Context, challenge models
 	err := r.Redis.HSet(ctx, REDIS_CHALLENGES_HASH, challenge.ID, data).Err()
 	if err != nil {
 		return fmt.Errorf("failed to store challenge: %w", err)
+	}
+	return nil
+}
+
+func (r *ChallengesRepo) SaveSession(ctx context.Context, sessionId uuid.UUID, p1 string, p2 string) error {
+	session := models.Session{P1: p1, P2: p2}
+	data, _ := json.Marshal(session)
+	err := r.Redis.HSet(ctx, REDIS_SESSIONS_HASH, sessionId.String(), data).Err()
+	if err != nil {
+		return fmt.Errorf("failed to store session: %w", err)
 	}
 	return nil
 }
