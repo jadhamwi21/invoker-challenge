@@ -9,7 +9,7 @@ type CloseBehavior = "on-click-outside" | "on-x" | "none";
 type Props = {
 	children: React.ReactNode;
 	opened: boolean;
-	closeBehavior: CloseBehavior;
+	closeBehavior?: CloseBehavior;
 	closeHandler?: () => void;
 };
 

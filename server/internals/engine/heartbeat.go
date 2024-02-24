@@ -4,14 +4,12 @@ import (
 	"time"
 )
 
-const MATCH_DURATION = 30
-
 type Heartbeat struct {
 	timestamp int
 }
 
 func (h *Heartbeat) bump() {
-	h.timestamp++
+	h.timestamp--
 }
 
 func (h *Heartbeat) pushHeartbeatToChannels(channels []chan int, timestamp int) {

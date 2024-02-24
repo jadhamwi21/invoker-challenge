@@ -9,6 +9,7 @@ import (
 const (
 	PLAYERS_NUMBER     = 2
 	COUNTDOWN          = 3
+	MATCH_DURATION     = 60
 	HEARTBEAT_CHANNELS = "HeartbeatChannels"
 	COUNTDOWN_CHANNELS = "CountdownChannels"
 )
@@ -37,7 +38,7 @@ func NewGameEngine(sessionId string) GameEngine {
 	return GameEngine{
 		sessionId:    sessionId,
 		redisHash:    hash,
-		heartbeat:    Heartbeat{timestamp: 0},
+		heartbeat:    Heartbeat{timestamp: MATCH_DURATION},
 		players:      make(map[string]Channels),
 		running:      false,
 		readyPlayers: 0,

@@ -11,8 +11,7 @@ import {
 import { useAppDispatch } from "@/redux/store";
 import SSEService from "@/services/SSEService";
 import type { Challenge } from "@/types/challenges.types";
-import { useState } from "react";
-import { useEffectOnce } from "usehooks-ts";
+import { useEffect, useState } from "react";
 import styles from "./Challenge.module.scss";
 type Props = { challenge: Challenge };
 const Challenge = ({ challenge }: Props) => {
@@ -26,7 +25,7 @@ const Challenge = ({ challenge }: Props) => {
 		acceptChallenge(challenge.id);
 	};
 	const [cancelled, setCancelled] = useState(false);
-	useEffectOnce(() => {
+	useEffect(() => {
 		const cleanup = SSEService.addListener("cancel:challenge", (id) => {
 			if (id == challenge.id) {
 				setCancelled(true);
@@ -35,7 +34,7 @@ const Challenge = ({ challenge }: Props) => {
 			}
 		});
 		return cleanup;
-	});
+	}, []);
 	return (
 		<div className={styles.container}>
 			<img src={SwordsIcon} className={styles.swords_icon} />

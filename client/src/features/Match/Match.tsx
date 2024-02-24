@@ -1,27 +1,17 @@
-import WebsocketService, {
-	CountdownMessage,
-} from "@/services/WebsocketService";
-import { useEffect, useState } from "react";
+import Transition from "@/layouts/Transitions/Transitions";
+import CountdownContainer from "./containers/Countdown/CountdownContainer";
+import GreetingContainer from "./containers/Greeting/GreetingContainer";
+import HeartbeatContainer from "./containers/Heartbeat/HeartbeatContainer";
 
 type Props = {};
 
 const Match = (props: Props) => {
-	const [countdown, setCountdown] = useState(null);
-	const [heartbeat, setHeartbeat] = useState(null);
-	useEffect(() => {
-		WebsocketService.addHandler("countdown", (message: CountdownMessage) => {
-			setCountdown(message.data);
-		});
-		WebsocketService.addHandler("heartbeat", (message: CountdownMessage) => {
-			setHeartbeat(message.data);
-		});
-		WebsocketService.send({ event: "ready" });
-	}, []);
 	return (
-		<>
-			<div style={{ color: "red" }}>Countdown : {countdown}</div>
-			<div style={{ color: "red" }}>Heartbeat : {heartbeat}</div>
-		</>
+		<Transition>
+			<GreetingContainer />
+			<CountdownContainer />
+			<HeartbeatContainer />
+		</Transition>
 	);
 };
 
