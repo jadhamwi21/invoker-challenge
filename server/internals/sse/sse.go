@@ -8,7 +8,7 @@ type sseService struct {
 	rooms map[string]chan SSEvent
 }
 
-var SseService sseService = sseService{rooms: make(map[string]chan SSEvent)}
+var SseService sseService = sseService{rooms: map[string]chan SSEvent{}}
 
 func (SseService *sseService) AddUser(username string) {
 	SseService.rooms[username] = make(chan SSEvent)

@@ -10,8 +10,9 @@ import (
 	"github.com/jadhamwi21/invoker-challenge/internals/auth"
 	"github.com/jadhamwi21/invoker-challenge/internals/challenges"
 	"github.com/jadhamwi21/invoker-challenge/internals/database"
+	"github.com/jadhamwi21/invoker-challenge/internals/engine"
 	"github.com/jadhamwi21/invoker-challenge/internals/friends"
-	"github.com/jadhamwi21/invoker-challenge/internals/games"
+	"github.com/jadhamwi21/invoker-challenge/internals/matches"
 	"github.com/jadhamwi21/invoker-challenge/internals/notifications"
 	"github.com/jadhamwi21/invoker-challenge/internals/players"
 	"github.com/jadhamwi21/invoker-challenge/internals/redis"
@@ -43,14 +44,15 @@ func main() {
 	app.Use(logger.New(logger.Config{
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
 	}))
+	engines := engine.NewEngines()
 
 	auth.AddAuthRoutes(app, db)
 	players.AddPlayersRoutes(app, db)
 	friends.AddFriendsRoutes(app, db)
 	notifications.AddNotificationsRoutes(app, db)
 	challenges.AddChallengesRoutes(app, redis)
-	games.AddGamesRoutes(app, redis)
-	ws.AddWebsocketToApp(app, redis)
+	matches.AddMatchesRoutes(app, redis, engines)
+	ws.AddWebsocketToApp(app, redis, engines)
 	sse.SetupSSE(app)
 
 	PORT := fmt.Sprintf(":%v", viper.GetString("PORT"))

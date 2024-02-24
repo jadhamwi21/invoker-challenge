@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jadhamwi21/invoker-challenge/internals/constants"
 	"github.com/jadhamwi21/invoker-challenge/internals/models"
 	"github.com/jadhamwi21/invoker-challenge/internals/sse"
 	"go.mongodb.org/mongo-driver/bson"
@@ -64,7 +65,7 @@ func (Repo *FriendsRepo) FriendRequest(clientUsername string, friendUsername str
 	if err != nil {
 		return err
 	}
-	go sse.SseService.SendEventToUser(friendUsername, sse.NewSSEvent(FRIEND_REQUEST_EVENT, map[string]interface{}{"request-id": friendRequest.ID, "username": clientUsername}))
+	go sse.SseService.SendEventToUser(friendUsername, sse.NewSSEvent(constants.FRIEND_REQUEST_EVENT, map[string]interface{}{"request-id": friendRequest.ID, "username": clientUsername}))
 
 	return nil
 }
@@ -104,7 +105,7 @@ func (Repo *FriendsRepo) AcceptFriendRequest(clientUsername string, requestId st
 
 	playersCollection.FindOne(context.Background(), requesterFilter).Decode(requester)
 	fmt.Println(requester.Username, clientUsername)
-	go sse.SseService.SendEventToUser(requester.Username, sse.NewSSEvent(ACCEPT_FRIEND_REQUEST_EVENT, map[string]interface{}{"request-id": requestId, "username": client.Username}))
+	go sse.SseService.SendEventToUser(requester.Username, sse.NewSSEvent(constants.ACCEPT_FRIEND_REQUEST_EVENT, map[string]interface{}{"request-id": requestId, "username": client.Username}))
 
 	notification := &models.Notification{ID: primitive.NewObjectID(), UserID: request.Requester, Timestamp: primitive.NewDateTimeFromTime(time.Now()), Text: fmt.Sprintf("Your friend request to %v was accepted", client.Username)}
 	notificationsCollection := Repo.Db.Collection("notifications")
@@ -145,13 +146,13 @@ func (Repo *FriendsRepo) RejectFriendRequest(clientUsername string, requestId st
 		requesterFilter := bson.M{"_id": request.Requester}
 		playersCollection.FindOne(context.Background(), requesterFilter).Decode(requester)
 		fmt.Println("sent")
-		go sse.SseService.SendEventToUser(requester.Username, sse.NewSSEvent(REJECT_FRIEND_REQUEST_EVENT, map[string]interface{}{"request-id": requestId, "username": client.Username}))
+		go sse.SseService.SendEventToUser(requester.Username, sse.NewSSEvent(constants.REJECT_FRIEND_REQUEST_EVENT, map[string]interface{}{"request-id": requestId, "username": client.Username}))
 	} else {
 		requestee := &models.BasePlayer{}
 		requesteeFilter := bson.M{"_id": request.Requestee}
 		playersCollection.FindOne(context.Background(), requesteeFilter).Decode(requestee)
 		fmt.Println("sent")
-		go sse.SseService.SendEventToUser(requestee.Username, sse.NewSSEvent(REJECT_FRIEND_REQUEST_EVENT, map[string]interface{}{"request-id": requestId, "username": client.Username}))
+		go sse.SseService.SendEventToUser(requestee.Username, sse.NewSSEvent(constants.REJECT_FRIEND_REQUEST_EVENT, map[string]interface{}{"request-id": requestId, "username": client.Username}))
 	}
 	return nil
 }

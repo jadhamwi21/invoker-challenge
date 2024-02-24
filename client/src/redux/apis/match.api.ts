@@ -1,15 +1,15 @@
 // Need to use the React-specific entry point to import createApi
-import { NewGameRequest } from "@/types/game.types";
+import { NewMatchRequest } from "@/types/match.types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-export const gamesApi = createApi({
-	reducerPath: "gamesApi",
+export const matchApi = createApi({
+	reducerPath: "matchApi",
 	baseQuery: fetchBaseQuery({
-		baseUrl: `${import.meta.env.VITE_BASE_URL}/games`,
+		baseUrl: `${import.meta.env.VITE_BASE_URL}/matches`,
 		credentials: "include",
 	}),
 	endpoints: (builder) => ({
-		newGame: builder.mutation<void, NewGameRequest>({
+		newMatch: builder.mutation<void, NewMatchRequest>({
 			query: (formData) => ({
 				url: "/",
 				method: "POST",
@@ -19,4 +19,4 @@ export const gamesApi = createApi({
 	}),
 });
 
-export const { useNewGameMutation } = gamesApi;
+export const { useNewMatchMutation } = matchApi;

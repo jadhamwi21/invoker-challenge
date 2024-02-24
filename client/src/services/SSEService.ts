@@ -6,7 +6,7 @@ type FriendEvent =
 	| "accept:friend-request"
 	| "reject:friend-request";
 
-type GameEvent = "start:game";
+type MatchEvent = "start:match";
 
 type ChallengeEvent =
 	| "new:challenge"
@@ -21,7 +21,7 @@ type SSEventType =
 	| "notification"
 	| ChallengeEvent
 	| SessionEvent
-	| GameEvent;
+	| MatchEvent;
 
 type HandlerPath = `${SSEventType}.${string}`;
 type SSEMessageType = { type: SSEventType; data: any };
@@ -42,7 +42,7 @@ export default class SSEService {
 		"deny:challenge": {},
 		"cancel:challenge": {},
 		"create:session": {},
-		"start:game": {},
+		"start:match": {},
 	};
 	public static async setup() {
 		this.sse = new EventSource(`${import.meta.env.VITE_BASE_URL}/sse`, {

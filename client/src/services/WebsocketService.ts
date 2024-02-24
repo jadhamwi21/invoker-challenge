@@ -1,6 +1,4 @@
-import { setGameConnectionStatus } from "@/redux/slices/game.slice";
 import { store } from "@/redux/store";
-import { EnMatchConnectionStatus } from "@/types/game.types";
 
 export default class WebsocketService {
 	private static ws: WebSocket;
@@ -15,15 +13,13 @@ export default class WebsocketService {
 			);
 
 			this.ws.onmessage = (ev) => {
-				console.log(ev.data);
+				console.log(ev);
 			};
 			this.ws.onopen = () => {
-				dispatch(setGameConnectionStatus(EnMatchConnectionStatus.Connected));
+				this.ws.send("ready");
 				resolve();
 			};
-			this.ws.onclose = () => {
-				dispatch(setGameConnectionStatus(EnMatchConnectionStatus.Disconnected));
-			};
+			this.ws.onclose = reject;
 			this.ws.onerror = (e) => {
 				console.log(e);
 				reject();

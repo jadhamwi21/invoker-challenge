@@ -21,7 +21,7 @@ func formatTag(field string, tag string) string {
 func FormatValidationError(validationError error) map[string]interface{} {
 	err := validationError.(validator.ValidationErrors)
 
-	errMap := make(map[string]interface{})
+	errMap := map[string]interface{}{}
 	for _, current := range err {
 
 		errMap[strings.ToLower(current.Field())] = formatTag(current.Field(), current.Tag())

@@ -5,6 +5,7 @@ import {
 } from "react-router-dom";
 import Challenge from "./features/Challenge/Challenge";
 import Friends from "./features/Friends/Friends";
+import Match from "./features/Match/Match";
 import Notifications from "./features/Notifications/Notifications";
 import Player from "./features/Player/Player";
 import Players from "./features/Players/Players";
@@ -29,6 +30,7 @@ export const router = createBrowserRouter(
 				<Route path="notifications" element={<Notifications />} />
 				<Route path="challenge" element={<Challenge />} />
 			</Route>
+			<Route path="match/:sessionID" element={<Match />} />
 		</Route>
 	)
 );

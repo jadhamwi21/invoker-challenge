@@ -4,4 +4,4 @@ export enum EnMatchConnectionStatus {
 	None,
 }
 
-export type NewGameRequest = { sessionId: string; opponent: string };
+export type NewMatchRequest = { sessionId: string; opponent: string };

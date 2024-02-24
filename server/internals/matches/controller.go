@@ -1,4 +1,4 @@
-package games
+package matches
 
 import (
 	"encoding/json"
@@ -7,21 +7,24 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jadhamwi21/invoker-challenge/internals/challenges"
+	"github.com/jadhamwi21/invoker-challenge/internals/constants"
+	"github.com/jadhamwi21/invoker-challenge/internals/engine"
 	"github.com/jadhamwi21/invoker-challenge/internals/models"
 	"github.com/jadhamwi21/invoker-challenge/internals/sse"
 	"github.com/jadhamwi21/invoker-challenge/internals/validation"
 )
 
-type GamesController struct {
-	Repo *GamesRepo
+type MatchesController struct {
+	Repo    *MatchesRepo
+	Engines *engine.Engines
 }
 
-func NewGamesController(repo *GamesRepo) *GamesController {
-	return &GamesController{Repo: repo}
+func NewMatchesController(repo *MatchesRepo, engines *engine.Engines) *MatchesController {
+	return &MatchesController{Repo: repo, Engines: engines}
 }
 
-func (Controller *GamesController) CreateGameHandler(c *fiber.Ctx) error {
-	body := &models.NewGameBody{}
+func (Controller *MatchesController) CreateMatchHandler(c *fiber.Ctx) error {
+	body := &models.NewMatchBody{}
 	if err := c.BodyParser(body); err != nil {
 		return err
 	}
@@ -44,11 +47,14 @@ func (Controller *GamesController) CreateGameHandler(c *fiber.Ctx) error {
 	if session.P1 != client && session.P2 != client {
 		return fiber.NewError(fiber.StatusUnauthorized, "you're unauthorized to start this match")
 	}
-	err = Controller.Repo.CreateGame(c.Context(), body, client)
+	err = Controller.Repo.CreateMatch(c.Context(), body, client)
 	if err != nil {
 		return err
 	}
-	event := sse.NewSSEvent(START_GAME_EVENT, body.SessionID)
+	gameEngine := engine.NewGameEngine(body.SessionID)
+	Controller.Engines.AddEngine(&gameEngine)
+	event := sse.NewSSEvent(constants.START_MATCH_EVENT, body.SessionID)
+
 	go sse.SseService.SendEventToUser(session.P1, event)
 	go sse.SseService.SendEventToUser(session.P2, event)
 	return c.SendStatus(fiber.StatusOK)
