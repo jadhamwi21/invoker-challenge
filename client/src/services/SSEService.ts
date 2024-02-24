@@ -23,7 +23,6 @@ type SSEventType =
 	| SessionEvent
 	| MatchEvent;
 
-type HandlerPath = `${SSEventType}.${string}`;
 type SSEMessageType = { type: SSEventType; data: any };
 
 export default class SSEService {
@@ -60,12 +59,9 @@ export default class SSEService {
 	}
 	public static addListener(type: SSEventType, handler: (data: any) => void) {
 		const id = uuid();
-		const path: HandlerPath = `${type}.${id}`;
 		this.handlersMap[type][id] = handler;
-		return path;
-	}
-	public static removeListener(path: HandlerPath) {
-		const [type, id] = path.split(".") as [SSEventType, string];
-		delete this.handlersMap[type][id];
+		return () => {
+			delete this.handlersMap[type][id];
+		};
 	}
 }

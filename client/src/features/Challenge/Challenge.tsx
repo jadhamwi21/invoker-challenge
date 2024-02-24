@@ -22,7 +22,7 @@ const Challenge = (props: Props) => {
 	const { sessionID } = useAppSelector(selectMatch);
 	const navigate = useNavigate();
 	useEffectOnce(() => {
-		const ids = [
+		const cleanupFuncs = [
 			SSEService.addListener("new:challenge", (data: Challenge) => {
 				dispatch(pushNewChallenge(data));
 			}),
@@ -38,8 +38,8 @@ const Challenge = (props: Props) => {
 			}),
 		];
 		return () =>
-			ids.forEach((id) => {
-				SSEService.removeListener(id);
+			cleanupFuncs.forEach((cleanup) => {
+				cleanup();
 			});
 	});
 	return (

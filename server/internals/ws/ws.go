@@ -12,12 +12,16 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-const (
-	MESSAGE_TYPE = 1
-)
-
+// Server Events
 const (
 	HEARTBEAT_EVENT = "heartbeat"
+	COUNTDOWN_EVENT = "countdown"
+)
+
+// Client Events
+
+const (
+	READY_EVENT = "ready"
 )
 
 type WebsocketMessage struct {
@@ -36,38 +40,48 @@ func NewWebsocketMessage(event string, data interface{}) WebsocketMessage {
 
 func AddWebsocketToApp(app *fiber.App, redis *redis.Client, engines *engine.Engines) {
 	app.Use("/ws/:sessionId", auth.Protected, websocketMiddleware, websocket.New(func(c *websocket.Conn) {
+		defer c.Close()
 		sessionId := c.Params("sessionId")
 		username := c.Locals("username").(string)
 
 		gameEngine, err := engines.GetEngineBySessionID(sessionId)
 		if err != nil {
+			log.Println("Error getting game engine:", err)
 			c.Close()
+			return
 		}
+
 		clientChannels := engine.NewClientChannels()
 		gameEngine.NewClient(username, clientChannels)
-		for {
-			// Write Routine
-			go func() {
+
+		go func() {
+			for {
 				select {
 				case heartbeat := <-clientChannels.HeartbeatChannel:
-					c.WriteMessage(MESSAGE_TYPE, NewWebsocketMessage(HEARTBEAT_EVENT, heartbeat).Format())
+					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(HEARTBEAT_EVENT, heartbeat).Format())
+				case countdown := <-clientChannels.CountdownChannel:
+					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(COUNTDOWN_EVENT, countdown).Format())
 				}
-			}()
-			go func() {
-				var (
-					msg []byte
-					err error
-				)
-				if _, msg, err = c.ReadMessage(); err != nil {
-					log.Println("read:", err)
-				}
-				fmt.Println(string(msg))
-				if string(msg) == "ready" {
-					gameEngine.UpdateRunningState(true)
-				}
+			}
+		}()
 
-			}()
-
+		for {
+			_, msg, err := c.ReadMessage()
+			if err != nil {
+				log.Println("Error reading message:", err)
+				return
+			}
+			fmt.Println(msg)
+			data := &WebsocketMessage{}
+			err = json.Unmarshal(msg, data)
+			fmt.Println(data)
+			if err != nil {
+				fmt.Println(err)
+			}
+			switch data.Event {
+			case READY_EVENT:
+				gameEngine.TriggerReady()
+			}
 		}
 	}))
 }

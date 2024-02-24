@@ -6,50 +6,87 @@ import (
 	"github.com/jadhamwi21/invoker-challenge/internals/utils"
 )
 
+const (
+	PLAYERS_NUMBER     = 2
+	COUNTDOWN          = 3
+	HEARTBEAT_CHANNELS = "HeartbeatChannels"
+	COUNTDOWN_CHANNELS = "CountdownChannels"
+)
+
 type Channels struct {
 	HeartbeatChannel chan int
+	CountdownChannel chan int
 }
 
 func NewClientChannels() Channels {
-	return Channels{HeartbeatChannel: make(chan int)}
+	return Channels{HeartbeatChannel: make(chan int), CountdownChannel: make(chan int)}
 }
 
 type GameEngine struct {
-	sessionId string
-	redisHash string
-	heartbeat Heartbeat
-	players   map[string]Channels
-	running   bool
+	sessionId    string
+	redisHash    string
+	heartbeat    Heartbeat
+	countdown    Countdown
+	players      map[string]Channels
+	running      bool
+	readyPlayers int
 }
 
-func (g *GameEngine) getHeartbeatChannels() []chan int {
+func NewGameEngine(sessionId string) GameEngine {
+	hash := utils.FormatMatchHash(sessionId)
+	return GameEngine{
+		sessionId:    sessionId,
+		redisHash:    hash,
+		heartbeat:    Heartbeat{timestamp: 0},
+		players:      make(map[string]Channels),
+		running:      false,
+		readyPlayers: 0,
+		countdown:    Countdown{val: COUNTDOWN},
+	}
+}
+
+func (g *GameEngine) getChannels(ev string) []chan int {
 	channels := []chan int{}
 	for _, v := range g.players {
-		channels = append(channels, v.HeartbeatChannel)
+		switch ev {
+		case HEARTBEAT_CHANNELS:
+			channels = append(channels, v.HeartbeatChannel)
+		case COUNTDOWN_CHANNELS:
+			channels = append(channels, v.CountdownChannel)
+		default:
+			fmt.Println("Unknown event:", ev)
+		}
 	}
 	return channels
 }
 
 func (g *GameEngine) Run() {
-	heartbeatChannels := g.getHeartbeatChannels()
+	countdownChannels := g.getChannels(COUNTDOWN_CHANNELS)
+	heartbeatChannels := g.getChannels(HEARTBEAT_CHANNELS)
+	g.countdown.Run(countdownChannels)
 	go g.heartbeat.Run(heartbeatChannels)
 }
 
-func (g *GameEngine) UpdateRunningState(running bool) {
-	g.running = running
-	if running {
+func (g *GameEngine) updateRunningState() {
+	g.running = g.readyPlayers == PLAYERS_NUMBER
+	if g.running {
 		go g.Run()
-	} else {
-		fmt.Println("stop")
 	}
+}
+
+func (g *GameEngine) TriggerReady() {
+	g.readyPlayers++
+	g.updateRunningState()
+
+}
+
+func (g *GameEngine) TriggerUnReady() {
+	g.readyPlayers--
+	g.updateRunningState()
 }
 
 func (g *GameEngine) NewClient(username string, channels Channels) {
 	g.players[username] = channels
-}
-func NewGameEngine(sessionId string) GameEngine {
-	hash := utils.FormatMatchHash(sessionId)
-	return GameEngine{sessionId: sessionId, redisHash: hash, heartbeat: Heartbeat{timestamp: 0}, players: make(map[string]Channels), running: false}
 }
 
 type Engines struct {

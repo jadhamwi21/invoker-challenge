@@ -5,14 +5,9 @@ type MatchPlayer struct {
 	Score    int    `json:"score"`
 }
 
-type MatchConfig struct {
-	Duration int `json:"duration"`
-}
-
 type Match struct {
-	Player1     MatchPlayer `json:"p1"`
-	Player2     MatchPlayer `json:"p2"`
-	MatchConfig MatchConfig `json:"config"`
+	Player1 MatchPlayer `json:"p1"`
+	Player2 MatchPlayer `json:"p2"`
 }
 
 type NewMatchBody struct {

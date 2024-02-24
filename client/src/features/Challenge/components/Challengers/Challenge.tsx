@@ -27,14 +27,14 @@ const Challenge = ({ challenge }: Props) => {
 	};
 	const [cancelled, setCancelled] = useState(false);
 	useEffectOnce(() => {
-		const id = SSEService.addListener("cancel:challenge", (id) => {
+		const cleanup = SSEService.addListener("cancel:challenge", (id) => {
 			if (id == challenge.id) {
 				setCancelled(true);
 			} else {
 				dispatch(removeChallengeById(id));
 			}
 		});
-		return () => SSEService.removeListener(id);
+		return cleanup;
 	});
 	return (
 		<div className={styles.container}>

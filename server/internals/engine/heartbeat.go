@@ -4,24 +4,27 @@ import (
 	"time"
 )
 
+const MATCH_DURATION = 30
+
 type Heartbeat struct {
 	timestamp int
 }
 
-func (h *Heartbeat) Bump() {
+func (h *Heartbeat) bump() {
 	h.timestamp++
 }
 
-func (h *Heartbeat) pushHeartbeatToChannels(channels []chan int) {
+func (h *Heartbeat) pushHeartbeatToChannels(channels []chan int, timestamp int) {
 	for _, ch := range channels {
-		ch <- h.timestamp
+		ch <- timestamp
 	}
 }
 
 func (h *Heartbeat) Run(channels []chan int) {
-	for i := 0; i < 30; i++ {
+	go h.pushHeartbeatToChannels(channels, h.timestamp)
+	for i := 0; i < MATCH_DURATION; i++ {
 		time.Sleep(time.Second)
-		h.Bump()
-		go h.pushHeartbeatToChannels(channels)
+		h.bump()
+		go h.pushHeartbeatToChannels(channels, h.timestamp)
 	}
 }

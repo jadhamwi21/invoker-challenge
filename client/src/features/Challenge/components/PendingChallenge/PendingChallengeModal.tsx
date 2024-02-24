@@ -44,7 +44,7 @@ const PendingChallengeModal = (props: Props) => {
 	const [cancelChallenge] = useCancelChallengeMutation();
 	const [newMatch] = useNewMatchMutation();
 	useEffect(() => {
-		const ids = [
+		const cleanupFuncs = [
 			SSEService.addListener("deny:challenge", (id) => {
 				if (id == pendingChallengeId) {
 					setResponse("denied");
@@ -59,7 +59,10 @@ const PendingChallengeModal = (props: Props) => {
 				newMatch({ sessionId: sessionId, opponent: friend });
 			}),
 		];
-		return () => ids.forEach((id) => SSEService.removeListener(id));
+		return () =>
+			cleanupFuncs.forEach((cleanup) => {
+				cleanup();
+			});
 	}, [pendingChallengeId]);
 
 	const clickHandler = () => {

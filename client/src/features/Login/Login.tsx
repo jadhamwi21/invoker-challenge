@@ -63,6 +63,22 @@ const Login = (props: Props) => {
 				)}
 			</div>
 			<Link to={"/signup"}>Not A Member?</Link>
+			<div>
+				<Button
+					onClick={() =>
+						formik.setValues({ username: "jadhamwi21", password: "123123123" })
+					}
+				>
+					Jadhamwi21
+				</Button>
+				<Button
+					onClick={() =>
+						formik.setValues({ username: "jadhamwi2", password: "123123123" })
+					}
+				>
+					Jadhamwi2
+				</Button>
+			</div>
 		</form>
 	);
 };

@@ -25,17 +25,16 @@ export const usePlayerInfoHeader = (
 				refetch();
 			}
 		};
-		const ids = [
+		const cleanupFuncs = [
 			SSEService.addListener("friend-request", fetchStatus),
-			SSEService.addListener("friend-request:accept", fetchStatus),
-			SSEService.addListener("friend-request:reject", fetchStatus),
+			SSEService.addListener("accept:friend-request", fetchStatus),
+			SSEService.addListener("reject:friend-request", fetchStatus),
 			SSEService.addListener("friend-remove", fetchStatus),
 		];
-		return () => {
-			ids.forEach((id) => {
-				SSEService.removeListener(id);
+		return () =>
+			cleanupFuncs.forEach((cleanup) => {
+				cleanup();
 			});
-		};
 	}, []);
 
 	const [newFriendRequest, { isLoading: friendRequestLoading }] =
