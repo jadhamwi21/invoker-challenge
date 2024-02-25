@@ -22,5 +22,5 @@ type PlayerState struct {
 }
 
 type MatchState struct {
-	Timestamp int16 `json:"timestamp"`
+	Timestamp int `json:"timestamp"`
 }

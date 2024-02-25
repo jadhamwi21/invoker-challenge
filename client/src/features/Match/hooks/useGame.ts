@@ -1,7 +1,9 @@
+import { KEY_TO_ORB_MAP } from "@/constants/constants";
+import { isInvokeKey } from "@/features/Playground/helpers/playground.helpers";
 import { selectChallenge } from "@/redux/slices/challenges.slice";
 import { selectPlayer } from "@/redux/slices/player.slice";
 import { useAppSelector } from "@/redux/store";
-import { EnOrb, EnSpell } from "@/types/invoker.types";
+import { EnOrb, EnSpell, InvokationKeysType } from "@/types/invoker.types";
 import EventEmitter from "eventemitter3";
 import { useRef, useState } from "react";
 
@@ -17,21 +19,46 @@ export const useGame = () => {
 		details: { username },
 	} = useAppSelector(selectPlayer);
 	const { friend } = useAppSelector(selectChallenge);
-	const [player1, setPlayer1] = useState<PlayerGameProperties>({
+
+	const emitterRef = useRef(new EventEmitter());
+	const [client, setClient] = useState<PlayerGameProperties>({
 		orbs: [],
 		spell: null,
 		score: 0,
-		name: "hello you motherfucker",
+		name: username,
 	});
 
-	const emitterRef = useRef(new EventEmitter());
-
-	const [player2, setPlayer2] = useState<PlayerGameProperties>({
+	const [opponent, setOpponent] = useState<PlayerGameProperties>({
 		orbs: [],
 		spell: null,
 		score: 0,
 		name: friend,
 	});
 
-	return { player1, player2, emitter: emitterRef.current };
+	const clientKeyDownHandler = (key: InvokationKeysType) => {
+		if (isInvokeKey(key)) {
+			// Invoke Key
+		} else {
+			setClient((prev) => {
+				const newOrbs = [...prev.orbs];
+				if (newOrbs.length === 3) {
+					newOrbs.pop();
+				}
+				newOrbs.unshift(KEY_TO_ORB_MAP[key]);
+				return { ...prev, orbs: newOrbs };
+			});
+		}
+	};
+
+	const testPress = () => {
+		emitterRef.current.emit("opponent-keypress", "Q");
+	};
+
+	return {
+		client,
+		opponent,
+		emitter: emitterRef.current,
+		clientKeyDownHandler,
+		testPress,
+	};
 };

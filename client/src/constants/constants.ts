@@ -57,6 +57,19 @@ export const SPELL_TO_ICON_MAP: Record<EnSpell, string> = {
 	[EnSpell.DEAFENING_BLAST]: DeafeningBlastIcon,
 };
 
+export const SPELL_TO_NAME_MAP: Record<EnSpell, string> = {
+	[EnSpell.COLD_SNAP]: "Cold Snap",
+	[EnSpell.GHOST_WALK]: "Ghost Walk",
+	[EnSpell.ICE_WALL]: "Ice Wall",
+	[EnSpell.TORNADO]: "Tornado",
+	[EnSpell.EMP]: "EMP",
+	[EnSpell.ALACRITY]: "Alacrity",
+	[EnSpell.FORGE_SPIRIT]: "Forge Spirit",
+	[EnSpell.CHAOS_METEOR]: "Chaos Meteor",
+	[EnSpell.SUN_STRIKE]: "Sun Strike",
+	[EnSpell.DEAFENING_BLAST]: "Deafening Blast",
+};
+
 export const SPELLS_ORB_COMBINATION: Record<EnSpell, EnOrb[]> = {
 	[EnSpell.COLD_SNAP]: [EnOrb.QUAS, EnOrb.QUAS, EnOrb.QUAS],
 	[EnSpell.GHOST_WALK]: [EnOrb.QUAS, EnOrb.QUAS, EnOrb.WEX],

@@ -1,18 +1,15 @@
 import { KEY_TO_ORB_MAP } from "@/constants/constants";
-import {
-	EnSpellsGenerator,
-	getSpellsGeneratorInstance,
-} from "@/services/SpellsService";
+
+import { PlaygroundSpellsGenerator } from "@/services/SpellsService";
 import { EnOrb } from "@/types/invoker.types";
+import { validateInvokation } from "@/utils/utils";
 import { useEffect, useRef, useState } from "react";
 import { isInvokeKey, isOrbKey } from "../helpers/playground.helpers";
 
 export const usePlayground = () => {
-	const spellsService = useRef(
-		getSpellsGeneratorInstance(EnSpellsGenerator.OFFLINE)
-	);
+	const spellsGenerator = useRef(new PlaygroundSpellsGenerator());
 
-	const [spell, setSpell] = useState(() => spellsService.current.generate());
+	const [spell, setSpell] = useState(() => spellsGenerator.current.generate());
 
 	const [orbs, setOrbs] = useState<EnOrb[]>([]);
 	const [counter, setCounter] = useState(0);
@@ -21,7 +18,7 @@ export const usePlayground = () => {
 	const spellRef = useRef(spell);
 
 	const resetHandler = () => {
-		const generatedSpell = spellsService.current.generate();
+		const generatedSpell = spellsGenerator.current.generate();
 		setOrbs([]);
 		setCounter(0);
 		setSpell(generatedSpell);
@@ -44,13 +41,13 @@ export const usePlayground = () => {
 			}
 
 			if (isInvokeKey(key)) {
-				const correctInvokation = spellsService.current.validateInvokation(
+				const correctInvokation = validateInvokation(
 					spellRef.current,
 					orbsRef.current
 				);
 
 				if (correctInvokation) {
-					const newSpell = spellsService.current.generate();
+					const newSpell = spellsGenerator.current.generate();
 					setSpell(newSpell);
 					setCounter((prev) => prev + 1);
 					spellRef.current = newSpell;

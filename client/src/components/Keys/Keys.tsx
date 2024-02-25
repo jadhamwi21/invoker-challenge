@@ -1,17 +1,21 @@
+import { InvokationKeysType } from "@/types/invoker.types";
 import EventEmitter from "eventemitter3";
 import Key from "./Key";
 import styles from "./Keys.module.scss";
 type Props = {
+	onKeyDown?: (key: InvokationKeysType) => void;
+	readOnly?: boolean;
 	emitter?: EventEmitter;
 };
 
-const Keys = ({ emitter }: Props) => {
+const KEYS: InvokationKeysType[] = ["Q", "W", "E", "R"];
+
+const Keys = (props: Props) => {
 	return (
 		<div className={styles.wrapper}>
-			<Key value="Q" emitter={emitter} />
-			<Key value="W" emitter={emitter} />
-			<Key value="E" emitter={emitter} />
-			<Key value="R" emitter={emitter} />
+			{KEYS.map((key) => (
+				<Key key={key} {...props} value={key} />
+			))}
 		</div>
 	);
 };

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/jadhamwi21/invoker-challenge/internals/utils"
+	"github.com/redis/go-redis/v9"
 )
 
 const (
@@ -28,17 +29,18 @@ type GameEngine struct {
 	redisHash    string
 	heartbeat    Heartbeat
 	countdown    Countdown
+	spells       Spells
 	players      map[string]Channels
 	running      bool
 	readyPlayers int
 }
 
-func NewGameEngine(sessionId string) GameEngine {
+func NewGameEngine(sessionId string, redis *redis.Client) GameEngine {
 	hash := utils.FormatMatchHash(sessionId)
 	return GameEngine{
 		sessionId:    sessionId,
 		redisHash:    hash,
-		heartbeat:    Heartbeat{timestamp: MATCH_DURATION},
+		heartbeat:    Heartbeat{timestamp: MATCH_DURATION, redis: redis, redisHash: hash},
 		players:      make(map[string]Channels),
 		running:      false,
 		readyPlayers: 0,

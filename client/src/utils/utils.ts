@@ -1,5 +1,5 @@
 import { SPELLS_ORB_COMBINATION } from "@/constants/constants";
-import { EnSpell, EnOrb } from "@/types/invoker.types";
+import { EnOrb, EnSpell } from "@/types/invoker.types";
 import axios from "axios";
 import { isEqual } from "lodash";
 
