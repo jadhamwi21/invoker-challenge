@@ -1,0 +1,22 @@
+.container {
+	padding-top: 3em;
+	height: 100vh;
+	width: 100%;
+	color: var(--gray);
+}
+
+.wrapper {
+	display: grid;
+	height: 100%;
+	width: 100%;
+	grid-template-columns: repeat(2, 1fr);
+	& > div {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		&:first-child {
+			border-right: dashed 2px var(--blue);
+		}
+	}
+}

@@ -1,15 +1,17 @@
-import React from "react";
-import styles from "./Keys.module.scss";
+import EventEmitter from "eventemitter3";
 import Key from "./Key";
-type Props = {};
+import styles from "./Keys.module.scss";
+type Props = {
+	emitter?: EventEmitter;
+};
 
-const Keys = (props: Props) => {
+const Keys = ({ emitter }: Props) => {
 	return (
 		<div className={styles.wrapper}>
-			<Key value="Q" />
-			<Key value="W" />
-			<Key value="E" />
-			<Key value="R" />
+			<Key value="Q" emitter={emitter} />
+			<Key value="W" emitter={emitter} />
+			<Key value="E" emitter={emitter} />
+			<Key value="R" emitter={emitter} />
 		</div>
 	);
 };

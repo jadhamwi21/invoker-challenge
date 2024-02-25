@@ -1,13 +1,13 @@
 import InvokerBody from "@/assets/images/InvokerBody.png";
-import { KEY_TO_ORB_MAP, ORB_TO_ICON_MAP } from "@/constants/constants";
+import { ORB_TO_ICON_MAP } from "@/constants/constants";
 import { EnOrb } from "@/types/invoker.types";
 import { animated, useSpring } from "@react-spring/web";
+import { useRef } from "react";
 import {
 	getInvokerPortraitClasses,
 	shouldAnimateOrbs,
 } from "./InvokerPortrait.helper";
 import styles from "./InvokerPortrait.module.scss";
-import { useRef } from "react";
 
 type OrbsType = EnOrb[];
 

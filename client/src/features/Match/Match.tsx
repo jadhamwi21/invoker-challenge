@@ -1,4 +1,5 @@
 import Transition from "@/layouts/Transitions/Transitions";
+import Game from "./components/Game/Game";
 import CountdownContainer from "./containers/Countdown/CountdownContainer";
 import GreetingContainer from "./containers/Greeting/GreetingContainer";
 import HeartbeatContainer from "./containers/Heartbeat/HeartbeatContainer";
@@ -11,6 +12,7 @@ const Match = (props: Props) => {
 			<GreetingContainer />
 			<CountdownContainer />
 			<HeartbeatContainer />
+			<Game />
 		</Transition>
 	);
 };

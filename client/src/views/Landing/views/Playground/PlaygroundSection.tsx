@@ -1,5 +1,4 @@
 import Playground from "@/features/Playground/Playground";
-import React from "react";
 import styles from "./PlaygroundSection.module.scss";
 
 type Props = {};

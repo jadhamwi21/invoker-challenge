@@ -1,11 +1,11 @@
-import { KEY_TO_ORB_MAP, SPELLS_ORB_COMBINATION } from "@/constants/constants";
-import { EnOrb } from "@/types/invoker.types";
-import { useEffect, useRef, useState } from "react";
-import { isInvokeKey, isOrbKey } from "../helpers/playground.helpers";
+import { KEY_TO_ORB_MAP } from "@/constants/constants";
 import {
 	EnSpellsGenerator,
 	getSpellsGeneratorInstance,
 } from "@/services/SpellsService";
+import { EnOrb } from "@/types/invoker.types";
+import { useEffect, useRef, useState } from "react";
+import { isInvokeKey, isOrbKey } from "../helpers/playground.helpers";
 
 export const usePlayground = () => {
 	const spellsService = useRef(

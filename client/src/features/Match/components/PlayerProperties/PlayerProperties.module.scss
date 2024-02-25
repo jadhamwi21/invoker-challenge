@@ -1,0 +1,27 @@
+.container {
+	position: absolute;
+	top: 0;
+
+	background-color: rgba(255, 255, 255, 0.1);
+	padding: 0.5em;
+	border-radius: 4px;
+	font-size: 14px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5em;
+	width: 200px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.name {
+	color: var(--gray);
+	margin: 0;
+}
+
+.score {
+	margin: 0;
+	color: var(--blue);
+}

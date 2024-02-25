@@ -1,8 +1,10 @@
 import Button from "@/components/Button/Button";
 import Keys from "@/components/Keys/Keys";
 import Spell from "@/components/Spell/Spell";
+import Spells from "@/components/Spells/Spells";
 import InvokerPortraitContainer from "@/containers/InvokerPortrait/InvokerPortraitContainer";
 import { useFullScreen } from "@/hooks/useFullscreen";
+import Transition from "@/layouts/Transitions/Transitions";
 import {
 	faArrowRotateLeft,
 	faBook,
@@ -10,11 +12,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faExpand } from "@fortawesome/free-solid-svg-icons/faExpand";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
 import styles from "./Playground.module.scss";
 import { usePlayground } from "./hooks/usePlayground";
-import Spells from "@/components/Spells/Spells";
-import { useState } from "react";
-import Transition from "@/layouts/Transitions/Transitions";
 
 type Props = {};
 
