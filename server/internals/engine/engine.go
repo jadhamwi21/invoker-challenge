@@ -8,20 +8,27 @@ import (
 )
 
 const (
-	PLAYERS_NUMBER     = 2
-	COUNTDOWN          = 3
-	MATCH_DURATION     = 60
-	HEARTBEAT_CHANNELS = "HeartbeatChannels"
-	COUNTDOWN_CHANNELS = "CountdownChannels"
+	PLAYERS_NUMBER    = 2
+	COUNTDOWN         = 3
+	MATCH_DURATION    = 60
+	HEARTBEAT_CHANNEL = "HeartbeatChannel"
+	COUNTDOWN_CHANNEL = "CountdownChannel"
+	SPELL_CHANNEL     = "SpellChannel"
 )
 
+type Player struct {
+	Channels Channels
+	Spells   PlayerSpells
+}
+
 type Channels struct {
-	HeartbeatChannel chan int
-	CountdownChannel chan int
+	HeartbeatChannel chan interface{}
+	CountdownChannel chan interface{}
+	SpellChannel     chan interface{}
 }
 
 func NewClientChannels() Channels {
-	return Channels{HeartbeatChannel: make(chan int), CountdownChannel: make(chan int)}
+	return Channels{HeartbeatChannel: make(chan interface{}), CountdownChannel: make(chan interface{}), SpellChannel: make(chan interface{})}
 }
 
 type GameEngine struct {
@@ -29,8 +36,7 @@ type GameEngine struct {
 	redisHash    string
 	heartbeat    Heartbeat
 	countdown    Countdown
-	spells       Spells
-	players      map[string]Channels
+	players      map[string]Player
 	running      bool
 	readyPlayers int
 }
@@ -41,21 +47,23 @@ func NewGameEngine(sessionId string, redis *redis.Client) GameEngine {
 		sessionId:    sessionId,
 		redisHash:    hash,
 		heartbeat:    Heartbeat{timestamp: MATCH_DURATION, redis: redis, redisHash: hash},
-		players:      make(map[string]Channels),
+		players:      make(map[string]Player),
 		running:      false,
 		readyPlayers: 0,
 		countdown:    Countdown{val: COUNTDOWN},
 	}
 }
 
-func (g *GameEngine) getChannels(ev string) []chan int {
-	channels := []chan int{}
+func (g *GameEngine) getSharedChannels(ev string) []chan interface{} {
+	channels := []chan interface{}{}
 	for _, v := range g.players {
 		switch ev {
-		case HEARTBEAT_CHANNELS:
-			channels = append(channels, v.HeartbeatChannel)
-		case COUNTDOWN_CHANNELS:
-			channels = append(channels, v.CountdownChannel)
+		case HEARTBEAT_CHANNEL:
+			channels = append(channels, v.Channels.HeartbeatChannel)
+		case COUNTDOWN_CHANNEL:
+			channels = append(channels, v.Channels.CountdownChannel)
+		case SPELL_CHANNEL:
+			channels = append(channels, v.Channels.SpellChannel)
 		default:
 			fmt.Println("Unknown event:", ev)
 		}
@@ -64,8 +72,8 @@ func (g *GameEngine) getChannels(ev string) []chan int {
 }
 
 func (g *GameEngine) Run() {
-	countdownChannels := g.getChannels(COUNTDOWN_CHANNELS)
-	heartbeatChannels := g.getChannels(HEARTBEAT_CHANNELS)
+	countdownChannels := g.getSharedChannels(COUNTDOWN_CHANNEL)
+	heartbeatChannels := g.getSharedChannels(HEARTBEAT_CHANNEL)
 	g.countdown.Run(countdownChannels)
 	go g.heartbeat.Run(heartbeatChannels)
 }
@@ -80,7 +88,6 @@ func (g *GameEngine) updateRunningState() {
 func (g *GameEngine) TriggerReady() {
 	g.readyPlayers++
 	g.updateRunningState()
-
 }
 
 func (g *GameEngine) TriggerUnReady() {
@@ -89,7 +96,18 @@ func (g *GameEngine) TriggerUnReady() {
 }
 
 func (g *GameEngine) NewClient(username string, channels Channels) {
-	g.players[username] = channels
+	g.players[username] = Player{Channels: channels, Spells: PlayerSpells{Last: -1, Current: -1}}
+}
+
+func (g *GameEngine) GenerateSpell(username string) {
+	if v, ok := g.players[username]; ok {
+		spellChannels := g.getSharedChannels(SPELL_CHANNEL)
+		spell := v.Spells.GenerateSpell()
+		generatedSpell := GeneratedSpell{Username: username, Spell: spell}
+		for _, v := range spellChannels {
+			v <- generatedSpell
+		}
+	}
 }
 
 type Engines struct {

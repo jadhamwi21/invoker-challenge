@@ -14,14 +14,16 @@ import (
 
 // Server Events
 const (
-	HEARTBEAT_EVENT = "heartbeat"
-	COUNTDOWN_EVENT = "countdown"
+	HEARTBEAT_EVENT       = "heartbeat"
+	COUNTDOWN_EVENT       = "countdown"
+	GENERATED_SPELL_EVENT = "generated_spell"
 )
 
 // Client Events
 
 const (
-	READY_EVENT = "ready"
+	READY_EVENT          = "ready"
+	GENERATE_SPELL_EVENT = "generate:spell"
 )
 
 type WebsocketMessage struct {
@@ -58,9 +60,14 @@ func AddWebsocketToApp(app *fiber.App, redis *redis.Client, engines *engine.Engi
 			for {
 				select {
 				case heartbeat := <-clientChannels.HeartbeatChannel:
+					heartbeat = heartbeat.(int)
 					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(HEARTBEAT_EVENT, heartbeat).Format())
 				case countdown := <-clientChannels.CountdownChannel:
+					countdown = countdown.(int)
 					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(COUNTDOWN_EVENT, countdown).Format())
+				case spell := <-clientChannels.SpellChannel:
+					spell = spell.(engine.GeneratedSpell)
+					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(GENERATED_SPELL_EVENT, spell).Format())
 				}
 			}
 		}()
@@ -80,7 +87,9 @@ func AddWebsocketToApp(app *fiber.App, redis *redis.Client, engines *engine.Engi
 			}
 			switch data.Event {
 			case READY_EVENT:
-				gameEngine.TriggerReady()
+				go gameEngine.TriggerReady()
+			case GENERATE_SPELL_EVENT:
+				go gameEngine.GenerateSpell(username)
 			}
 		}
 	}))

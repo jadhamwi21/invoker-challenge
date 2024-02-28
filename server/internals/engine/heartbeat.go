@@ -20,7 +20,7 @@ func (h *Heartbeat) bump() {
 	h.timestamp--
 }
 
-func (h *Heartbeat) pushHeartbeatToChannels(channels []chan int, timestamp int) {
+func (h *Heartbeat) pushHeartbeatToChannels(channels []chan interface{}, timestamp int) {
 	for _, ch := range channels {
 		ch <- timestamp
 	}
@@ -42,7 +42,7 @@ func (h *Heartbeat) save(timestamp int) error {
 	return nil
 }
 
-func (h *Heartbeat) Run(channels []chan int) {
+func (h *Heartbeat) Run(channels []chan interface{}) {
 	go h.pushHeartbeatToChannels(channels, h.timestamp)
 	for i := 0; i < MATCH_DURATION; i++ {
 		time.Sleep(time.Second)

@@ -7,6 +7,7 @@ import {
 import {
 	popChallenge,
 	removeChallengeById,
+	setChallengeFriend,
 } from "@/redux/slices/challenges.slice";
 import { useAppDispatch } from "@/redux/store";
 import SSEService from "@/services/SSEService";
@@ -18,6 +19,9 @@ const Challenge = ({ challenge }: Props) => {
 	const dispatch = useAppDispatch();
 	const [acceptChallenge] = useAcceptChallengeMutation();
 	const [denyChallenge] = useDenyChallengeMutation();
+	useEffect(() => {
+		dispatch(setChallengeFriend(challenge.sender));
+	}, []);
 	const onDeny = () => {
 		denyChallenge(challenge.id);
 	};

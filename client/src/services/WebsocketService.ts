@@ -1,18 +1,23 @@
 import { store } from "@/redux/store";
 import { uniqueId } from "lodash";
 
-type ServerEvent = "heartbeat" | "countdown";
-type ClientEvent = "ready";
+type ServerEvent = "heartbeat" | "countdown" | "generated_spell";
+type ClientEvent = "ready" | "generate:spell";
 
 type EventType = ServerEvent | ClientEvent;
 
 type Message<T extends EventType, K = unknown> = { event: T; data?: K };
 
 export type HeartbeatMessage = Message<"heartbeat", string>;
-export type CountdownMessage = Message<"heartbeat", number>;
+export type CountdownMessage = Message<"countdown", number>;
+export type GeneratedSpellMessage = Message<
+	"generated_spell",
+	{ username: string; spell: number }
+>;
 
 type ReadyMessage = Message<"ready">;
-type ClientMessage = ReadyMessage;
+type GenerateSpellMessage = Message<"generate:spell">;
+type ClientMessage = ReadyMessage | GenerateSpellMessage;
 
 export default class WebsocketService {
 	private static ws: WebSocket;
@@ -22,6 +27,7 @@ export default class WebsocketService {
 	> = {
 		heartbeat: {},
 		countdown: {},
+		generated_spell: {},
 	};
 	public static send(message: ClientMessage) {
 		this.ws.send(JSON.stringify(message));

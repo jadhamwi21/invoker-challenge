@@ -3,9 +3,13 @@ import { isInvokeKey } from "@/features/Playground/helpers/playground.helpers";
 import { selectChallenge } from "@/redux/slices/challenges.slice";
 import { selectPlayer } from "@/redux/slices/player.slice";
 import { useAppSelector } from "@/redux/store";
+import WebsocketService, {
+	CountdownMessage,
+	GeneratedSpellMessage,
+} from "@/services/WebsocketService";
 import { EnOrb, EnSpell, InvokationKeysType } from "@/types/invoker.types";
 import EventEmitter from "eventemitter3";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type PlayerGameProperties = {
 	orbs: EnOrb[];
@@ -53,6 +57,30 @@ export const useGame = () => {
 	const testPress = () => {
 		emitterRef.current.emit("opponent-keypress", "Q");
 	};
+
+	useEffect(() => {
+		WebsocketService.addHandler(
+			"generated_spell",
+			(spell: GeneratedSpellMessage) => {
+				if (spell.data.username === username) {
+					setClient((prev) => ({
+						...prev,
+						spell: spell.data.spell as EnSpell,
+					}));
+				} else {
+					setOpponent((prev) => ({
+						...prev,
+						spell: spell.data.spell as EnSpell,
+					}));
+				}
+			}
+		);
+		WebsocketService.addHandler("countdown", (countdown: CountdownMessage) => {
+			if (countdown.data === 0) {
+				WebsocketService.send({ event: "generate:spell" });
+			}
+		});
+	}, []);
 
 	return {
 		client,
