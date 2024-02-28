@@ -25,7 +25,10 @@ const Key = ({ value, onKeyDown, readOnly, emitter }: Props) => {
 			const onKeyUpHandler = (ev: KeyboardEvent) => {
 				if (ev.repeat) return;
 				const key = ev.key.toUpperCase();
+
+				console.log(key);
 				if (isInvokationKey(key) && value === key) {
+					console.log(key);
 					setIsDown(false);
 					onKeyDown(key);
 				}
@@ -38,7 +41,7 @@ const Key = ({ value, onKeyDown, readOnly, emitter }: Props) => {
 				window.removeEventListener("keyup", onKeyUpHandler);
 			};
 		}
-	}, []);
+	}, [onKeyDown]);
 	useEffect(() => {
 		if (emitter) {
 			const emitterHandler = async (key: InvokationKeysType) => {

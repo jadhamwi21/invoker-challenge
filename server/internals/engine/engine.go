@@ -14,29 +14,22 @@ const (
 	HEARTBEAT_CHANNEL = "HeartbeatChannel"
 	COUNTDOWN_CHANNEL = "CountdownChannel"
 	SPELL_CHANNEL     = "SpellChannel"
+	SCORE_CHANNEL     = "ScoreChannel"
 )
-
-type Player struct {
-	Channels Channels
-	Spells   PlayerSpells
-}
 
 type Channels struct {
 	HeartbeatChannel chan interface{}
 	CountdownChannel chan interface{}
 	SpellChannel     chan interface{}
-}
-
-func NewClientChannels() Channels {
-	return Channels{HeartbeatChannel: make(chan interface{}), CountdownChannel: make(chan interface{}), SpellChannel: make(chan interface{})}
+	ScoreChannel     chan interface{}
 }
 
 type GameEngine struct {
 	sessionId    string
 	redisHash    string
-	heartbeat    Heartbeat
-	countdown    Countdown
-	players      map[string]Player
+	heartbeat    *Heartbeat
+	countdown    *Countdown
+	players      map[string]*Player
 	running      bool
 	readyPlayers int
 }
@@ -46,11 +39,11 @@ func NewGameEngine(sessionId string, redis *redis.Client) GameEngine {
 	return GameEngine{
 		sessionId:    sessionId,
 		redisHash:    hash,
-		heartbeat:    Heartbeat{timestamp: MATCH_DURATION, redis: redis, redisHash: hash},
-		players:      make(map[string]Player),
+		heartbeat:    &Heartbeat{timestamp: MATCH_DURATION, redis: redis, redisHash: hash},
+		players:      make(map[string]*Player),
 		running:      false,
 		readyPlayers: 0,
-		countdown:    Countdown{val: COUNTDOWN},
+		countdown:    &Countdown{val: COUNTDOWN},
 	}
 }
 
@@ -64,6 +57,8 @@ func (g *GameEngine) getSharedChannels(ev string) []chan interface{} {
 			channels = append(channels, v.Channels.CountdownChannel)
 		case SPELL_CHANNEL:
 			channels = append(channels, v.Channels.SpellChannel)
+		case SCORE_CHANNEL:
+			channels = append(channels, v.Channels.ScoreChannel)
 		default:
 			fmt.Println("Unknown event:", ev)
 		}
@@ -95,8 +90,8 @@ func (g *GameEngine) TriggerUnReady() {
 	g.updateRunningState()
 }
 
-func (g *GameEngine) NewClient(username string, channels Channels) {
-	g.players[username] = Player{Channels: channels, Spells: PlayerSpells{Last: -1, Current: -1}}
+func (g *GameEngine) JoinPlayer(username string, channels Channels, redis *redis.Client) {
+	g.players[username] = NewPlayer(channels, redis, g.redisHash, username)
 }
 
 func (g *GameEngine) GenerateSpell(username string) {
@@ -106,6 +101,25 @@ func (g *GameEngine) GenerateSpell(username string) {
 		generatedSpell := GeneratedSpell{Username: username, Spell: spell}
 		for _, v := range spellChannels {
 			v <- generatedSpell
+		}
+	}
+}
+
+func (g *GameEngine) Invoke(username string, input []interface{}) {
+	var orbs []int
+	for _, v := range input {
+		orbs = append(orbs, int(v.(float64)))
+	}
+	if v, ok := g.players[username]; ok {
+		scoreChannels := g.getSharedChannels(SCORE_CHANNEL)
+		validInvokation := v.Spells.ValidateInvokation(orbs)
+		if validInvokation {
+			g.GenerateSpell(username)
+			v.UpdateState()
+			scoreUpdate := ScoreUpdate{Score: v.Score, Username: username}
+			for _, v := range scoreChannels {
+				v <- scoreUpdate
+			}
 		}
 	}
 }

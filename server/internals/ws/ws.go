@@ -17,6 +17,7 @@ const (
 	HEARTBEAT_EVENT       = "heartbeat"
 	COUNTDOWN_EVENT       = "countdown"
 	GENERATED_SPELL_EVENT = "generated_spell"
+	SCORE_EVENT           = "score"
 )
 
 // Client Events
@@ -24,11 +25,12 @@ const (
 const (
 	READY_EVENT          = "ready"
 	GENERATE_SPELL_EVENT = "generate:spell"
+	INVOKE_EVENT         = "invoke"
 )
 
 type WebsocketMessage struct {
-	Event string      `json:"event"`
-	Data  interface{} `json:"data"`
+	Event string `json:"event"`
+	Data  any    `json:"data"`
 }
 
 func (wsm WebsocketMessage) Format() []byte {
@@ -36,7 +38,7 @@ func (wsm WebsocketMessage) Format() []byte {
 	return str
 }
 
-func NewWebsocketMessage(event string, data interface{}) WebsocketMessage {
+func NewWebsocketMessage(event string, data any) WebsocketMessage {
 	return WebsocketMessage{Event: event, Data: data}
 }
 
@@ -54,7 +56,7 @@ func AddWebsocketToApp(app *fiber.App, redis *redis.Client, engines *engine.Engi
 		}
 
 		clientChannels := engine.NewClientChannels()
-		gameEngine.NewClient(username, clientChannels)
+		gameEngine.JoinPlayer(username, clientChannels, redis)
 
 		go func() {
 			for {
@@ -68,6 +70,9 @@ func AddWebsocketToApp(app *fiber.App, redis *redis.Client, engines *engine.Engi
 				case spell := <-clientChannels.SpellChannel:
 					spell = spell.(engine.GeneratedSpell)
 					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(GENERATED_SPELL_EVENT, spell).Format())
+				case score := <-clientChannels.ScoreChannel:
+					score = score.(engine.ScoreUpdate)
+					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(SCORE_EVENT, score).Format())
 				}
 			}
 		}()
@@ -90,6 +95,8 @@ func AddWebsocketToApp(app *fiber.App, redis *redis.Client, engines *engine.Engi
 				go gameEngine.TriggerReady()
 			case GENERATE_SPELL_EVENT:
 				go gameEngine.GenerateSpell(username)
+			case INVOKE_EVENT:
+				go gameEngine.Invoke(username, data.Data.([]interface{}))
 			}
 		}
 	}))

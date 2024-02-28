@@ -20,8 +20,8 @@ func NewMatchesRepo(redis *redis.Client) *MatchesRepo {
 }
 
 func getInitialMatchState() ([]byte, []byte, []byte) {
-	clientState, _ := json.Marshal(models.PlayerState{InvokedSpells: []string{}, LastInvokedSpell: "", Score: 0})
-	opponentState, _ := json.Marshal(models.PlayerState{InvokedSpells: []string{}, LastInvokedSpell: "", Score: 0})
+	clientState, _ := json.Marshal(models.PlayerState{Invoked: []int{}, Last: -1, Score: 0})
+	opponentState, _ := json.Marshal(models.PlayerState{Invoked: []int{}, Last: -1, Score: 0})
 	matchState, _ := json.Marshal(models.MatchState{Timestamp: 0})
 	return clientState, opponentState, matchState
 }

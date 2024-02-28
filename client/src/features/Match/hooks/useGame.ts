@@ -6,8 +6,10 @@ import { useAppSelector } from "@/redux/store";
 import WebsocketService, {
 	CountdownMessage,
 	GeneratedSpellMessage,
+	ScoreMessage,
 } from "@/services/WebsocketService";
 import { EnOrb, EnSpell, InvokationKeysType } from "@/types/invoker.types";
+import { validateInvokation } from "@/utils/utils";
 import EventEmitter from "eventemitter3";
 import { useEffect, useRef, useState } from "react";
 
@@ -38,10 +40,20 @@ export const useGame = () => {
 		score: 0,
 		name: friend,
 	});
-
+	const clientRef = useRef(client);
+	useEffect(() => {
+		clientRef.current = client;
+	});
 	const clientKeyDownHandler = (key: InvokationKeysType) => {
 		if (isInvokeKey(key)) {
-			// Invoke Key
+			const { spell, orbs } = clientRef.current;
+			const isValid = validateInvokation(spell, [...orbs]);
+
+			if (isValid)
+				WebsocketService.send({
+					event: "invoke",
+					data: client.orbs,
+				});
 		} else {
 			setClient((prev) => {
 				const newOrbs = [...prev.orbs];
@@ -52,10 +64,6 @@ export const useGame = () => {
 				return { ...prev, orbs: newOrbs };
 			});
 		}
-	};
-
-	const testPress = () => {
-		emitterRef.current.emit("opponent-keypress", "Q");
 	};
 
 	useEffect(() => {
@@ -80,6 +88,19 @@ export const useGame = () => {
 				WebsocketService.send({ event: "generate:spell" });
 			}
 		});
+		WebsocketService.addHandler("score", (score: ScoreMessage) => {
+			if (score.data.username === username) {
+				setClient((prev) => ({
+					...prev,
+					score: score.data.score,
+				}));
+			} else {
+				setOpponent((prev) => ({
+					...prev,
+					score: score.data.score,
+				}));
+			}
+		});
 	}, []);
 
 	return {
@@ -87,6 +108,5 @@ export const useGame = () => {
 		opponent,
 		emitter: emitterRef.current,
 		clientKeyDownHandler,
-		testPress,
 	};
 };

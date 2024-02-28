@@ -16,9 +16,10 @@ type NewMatchBody struct {
 }
 
 type PlayerState struct {
-	InvokedSpells    []string `json:"invoked_spells"`
-	Score            int16    `json:"score"`
-	LastInvokedSpell string   `json:"last_invoked_spell"`
+	Invoked []int `json:"invoked_spells"`
+	Score   int   `json:"score"`
+	Last    int   `json:"last_spell"`
+	Current int   `json:"current_spell"`
 }
 
 type MatchState struct {

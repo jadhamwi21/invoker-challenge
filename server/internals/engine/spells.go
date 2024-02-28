@@ -1,11 +1,9 @@
 package engine
 
 import (
-	"fmt"
 	"math/rand"
 	"reflect"
 	"slices"
-	"sort"
 )
 
 // Orbs
@@ -29,7 +27,7 @@ const (
 	DEAFENING_BLAST
 )
 
-var SPELLS = []int{COLD_SNAP, GHOST_WALK, ICE_WALL, TORNADO, EMP, ALACRITY, FORGE_SPIRIT, CHAOS_METEOR, DEAFENING_BLAST}
+var SPELLS = []int{COLD_SNAP, GHOST_WALK, ICE_WALL, TORNADO, EMP, ALACRITY, FORGE_SPIRIT, CHAOS_METEOR, SUN_STRIKE, DEAFENING_BLAST}
 
 var SPELL_ORB_COMBINATIONS = map[int][]int{
 	COLD_SNAP:       {QUAS, QUAS, QUAS},
@@ -47,6 +45,11 @@ var SPELL_ORB_COMBINATIONS = map[int][]int{
 type PlayerSpells struct {
 	Last    int
 	Current int
+	Invoked []int
+}
+
+func NewPlayerSpells() *PlayerSpells {
+	return &PlayerSpells{Last: -1, Current: -1, Invoked: []int{}}
 }
 
 type GeneratedSpell struct {
@@ -54,26 +57,34 @@ type GeneratedSpell struct {
 	Spell    int    `json:"spell"`
 }
 
-func getRandomSpell(excluded int) int {
-	if excluded == -1 {
+func (p *PlayerSpells) getRandomSpell() int {
+	if p.Last == -1 {
 		return SPELLS[rand.Intn(len(SPELLS))]
-	} else {
-		fmt.Println(excluded)
-		index := slices.Index(SPELLS, excluded)
-		availableSpells := append(SPELLS[:index], SPELLS[index+1:]...)
-		return availableSpells[rand.Intn(len(SPELLS))]
 	}
-}
 
+	var availableSpells []int
+	for _, spell := range SPELLS {
+		if spell != p.Last {
+			availableSpells = append(availableSpells, spell)
+		}
+	}
+
+	return availableSpells[rand.Intn(len(availableSpells))]
+}
 func (p *PlayerSpells) GenerateSpell() int {
-	spell := getRandomSpell(p.Last)
+	if p.Current != -1 {
+		p.Invoked = append(p.Invoked, p.Current)
+	}
+	p.Last = p.Current
+	spell := p.getRandomSpell()
 	p.Current = spell
+
 	return spell
 }
 
-func (p *PlayerSpells) ValidateSpell(orbs []int) bool {
+func (p *PlayerSpells) ValidateInvokation(orbs []int) bool {
 	combination := SPELL_ORB_COMBINATIONS[p.Current]
-	actualOrbs := sort.IntSlice(combination)
-	sentOrbs := sort.IntSlice(orbs)
-	return reflect.DeepEqual(actualOrbs, sentOrbs)
+	slices.Sort(combination)
+	slices.Sort(orbs)
+	return reflect.DeepEqual(combination, orbs)
 }
