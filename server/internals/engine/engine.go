@@ -88,13 +88,14 @@ func (g *GameEngine) JoinPlayer(username string, channels *Channels, redis *redi
 func (g *GameEngine) GenerateSpell(username string) error {
 	if v, ok := g.players[username]; ok {
 		v.mu.generate.Lock()
+		defer v.mu.generate.Unlock()
 		spellChannels := g.getSharedChannels(SPELL_CHANNEL)
 		spell := v.Spells.GenerateSpell()
-		v.mu.generate.Unlock()
 		generatedSpell := GeneratedSpell{Username: username, Spell: spell}
 		for _, v := range spellChannels {
 			v <- generatedSpell
 		}
+		return nil
 	}
 	return fmt.Errorf("player %v not in this match", username)
 }
@@ -106,6 +107,7 @@ func (g *GameEngine) Invoke(username string, input []interface{}) error {
 	}
 	if v, ok := g.players[username]; ok {
 		v.mu.invoke.Lock()
+		defer v.mu.invoke.Unlock()
 		scoreChannels := g.getSharedChannels(SCORE_CHANNEL)
 		validInvokation := v.Spells.ValidateInvokation(orbs)
 		if validInvokation {
@@ -119,7 +121,7 @@ func (g *GameEngine) Invoke(username string, input []interface{}) error {
 				v <- scoreUpdate
 			}
 		}
-		v.mu.invoke.Unlock()
+		return nil
 	}
 	return fmt.Errorf("player %v not in this match", username)
 }

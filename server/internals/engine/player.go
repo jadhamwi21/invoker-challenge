@@ -34,7 +34,7 @@ type ScoreUpdate struct {
 }
 
 func NewPlayer(channels *Channels, redis *redis.Client, hash string, username string) *Player {
-	return &Player{Username: username, Channels: channels, Spells: NewPlayerSpells(), redis: redis, Hash: hash, mu: &PlayerMutex{}}
+	return &Player{Username: username, Channels: channels, Spells: NewPlayerSpells(), redis: redis, Hash: hash, mu: NewPlayerMutex()}
 }
 
 func (p *Player) UpdateState() error {
