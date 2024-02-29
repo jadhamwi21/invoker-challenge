@@ -51,3 +51,7 @@ func (h *Heartbeat) Run(channels []chan interface{}) {
 		go h.save(h.timestamp)
 	}
 }
+
+func NewHeartbeat(redis *redis.Client, hash string) *Heartbeat {
+	return &Heartbeat{timestamp: MATCH_DURATION, redis: redis, redisHash: hash}
+}

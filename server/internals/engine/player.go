@@ -3,19 +3,29 @@ package engine
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"sync"
 
 	"github.com/jadhamwi21/invoker-challenge/internals/models"
 	"github.com/redis/go-redis/v9"
 )
 
+type PlayerMutex struct {
+	invoke   *sync.Mutex
+	generate *sync.Mutex
+}
+
+func NewPlayerMutex() *PlayerMutex {
+	return &PlayerMutex{invoke: &sync.Mutex{}, generate: &sync.Mutex{}}
+}
+
 type Player struct {
-	Channels Channels
+	Channels *Channels
 	Spells   *PlayerSpells
 	Score    int
 	redis    *redis.Client
 	Hash     string
 	Username string
+	mu       *PlayerMutex
 }
 
 type ScoreUpdate struct {
@@ -23,21 +33,20 @@ type ScoreUpdate struct {
 	Username string `json:"username"`
 }
 
-func NewClientChannels() Channels {
-	return Channels{HeartbeatChannel: make(chan interface{}), CountdownChannel: make(chan interface{}), SpellChannel: make(chan interface{}), ScoreChannel: make(chan interface{})}
+func NewPlayer(channels *Channels, redis *redis.Client, hash string, username string) *Player {
+	return &Player{Username: username, Channels: channels, Spells: NewPlayerSpells(), redis: redis, Hash: hash, mu: &PlayerMutex{}}
 }
 
-func NewPlayer(channels Channels, redis *redis.Client, hash string, username string) *Player {
-	return &Player{Username: username, Channels: channels, Spells: NewPlayerSpells(), redis: redis, Hash: hash}
-}
-
-func (p *Player) UpdateState() {
+func (p *Player) UpdateState() error {
 	p.Score++
 	newState := models.PlayerState{Invoked: p.Spells.Invoked, Score: p.Score, Last: p.Spells.Last, Current: p.Spells.Current}
 	data, err := json.Marshal(newState)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
-	p.redis.HSet(context.Background(), p.Hash, p.Username, data)
+	err = p.redis.HSet(context.Background(), p.Hash, p.Username, data).Err()
+	if err != nil {
+		return err
+	}
+	return nil
 }

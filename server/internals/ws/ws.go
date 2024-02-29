@@ -12,6 +12,8 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+const KEYSTROKE_EVENT = "keystroke"
+
 // Server Events
 const (
 	HEARTBEAT_EVENT       = "heartbeat"
@@ -55,7 +57,7 @@ func AddWebsocketToApp(app *fiber.App, redis *redis.Client, engines *engine.Engi
 			return
 		}
 
-		clientChannels := engine.NewClientChannels()
+		clientChannels := engine.NewChannels()
 		gameEngine.JoinPlayer(username, clientChannels, redis)
 
 		go func() {
@@ -73,6 +75,9 @@ func AddWebsocketToApp(app *fiber.App, redis *redis.Client, engines *engine.Engi
 				case score := <-clientChannels.ScoreChannel:
 					score = score.(engine.ScoreUpdate)
 					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(SCORE_EVENT, score).Format())
+				case keystroke := <-clientChannels.KeystrokeChannel:
+					keystroke = keystroke.(string)
+					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(KEYSTROKE_EVENT, keystroke).Format())
 				}
 			}
 		}()
@@ -97,6 +102,8 @@ func AddWebsocketToApp(app *fiber.App, redis *redis.Client, engines *engine.Engi
 				go gameEngine.GenerateSpell(username)
 			case INVOKE_EVENT:
 				go gameEngine.Invoke(username, data.Data.([]interface{}))
+			case KEYSTROKE_EVENT:
+				go gameEngine.KeystrokePress(username, data.Data)
 			}
 		}
 	}))

@@ -8,21 +8,10 @@ import (
 )
 
 const (
-	PLAYERS_NUMBER    = 2
-	COUNTDOWN         = 3
-	MATCH_DURATION    = 60
-	HEARTBEAT_CHANNEL = "HeartbeatChannel"
-	COUNTDOWN_CHANNEL = "CountdownChannel"
-	SPELL_CHANNEL     = "SpellChannel"
-	SCORE_CHANNEL     = "ScoreChannel"
+	PLAYERS_NUMBER = 2
+	COUNTDOWN      = 3
+	MATCH_DURATION = 60
 )
-
-type Channels struct {
-	HeartbeatChannel chan interface{}
-	CountdownChannel chan interface{}
-	SpellChannel     chan interface{}
-	ScoreChannel     chan interface{}
-}
 
 type GameEngine struct {
 	sessionId    string
@@ -39,11 +28,11 @@ func NewGameEngine(sessionId string, redis *redis.Client) GameEngine {
 	return GameEngine{
 		sessionId:    sessionId,
 		redisHash:    hash,
-		heartbeat:    &Heartbeat{timestamp: MATCH_DURATION, redis: redis, redisHash: hash},
+		heartbeat:    NewHeartbeat(redis, hash),
 		players:      make(map[string]*Player),
 		running:      false,
 		readyPlayers: 0,
-		countdown:    &Countdown{val: COUNTDOWN},
+		countdown:    NewCountdown(),
 	}
 }
 
@@ -59,6 +48,8 @@ func (g *GameEngine) getSharedChannels(ev string) []chan interface{} {
 			channels = append(channels, v.Channels.SpellChannel)
 		case SCORE_CHANNEL:
 			channels = append(channels, v.Channels.ScoreChannel)
+		case KEYSTROKE_CHANNEL:
+			channels = append(channels, v.Channels.KeystrokeChannel)
 		default:
 			fmt.Println("Unknown event:", ev)
 		}
@@ -90,36 +81,55 @@ func (g *GameEngine) TriggerUnReady() {
 	g.updateRunningState()
 }
 
-func (g *GameEngine) JoinPlayer(username string, channels Channels, redis *redis.Client) {
+func (g *GameEngine) JoinPlayer(username string, channels *Channels, redis *redis.Client) {
 	g.players[username] = NewPlayer(channels, redis, g.redisHash, username)
 }
 
-func (g *GameEngine) GenerateSpell(username string) {
+func (g *GameEngine) GenerateSpell(username string) error {
 	if v, ok := g.players[username]; ok {
+		v.mu.generate.Lock()
 		spellChannels := g.getSharedChannels(SPELL_CHANNEL)
 		spell := v.Spells.GenerateSpell()
+		v.mu.generate.Unlock()
 		generatedSpell := GeneratedSpell{Username: username, Spell: spell}
 		for _, v := range spellChannels {
 			v <- generatedSpell
 		}
 	}
+	return fmt.Errorf("player %v not in this match", username)
 }
 
-func (g *GameEngine) Invoke(username string, input []interface{}) {
+func (g *GameEngine) Invoke(username string, input []interface{}) error {
 	var orbs []int
 	for _, v := range input {
 		orbs = append(orbs, int(v.(float64)))
 	}
 	if v, ok := g.players[username]; ok {
+		v.mu.invoke.Lock()
 		scoreChannels := g.getSharedChannels(SCORE_CHANNEL)
 		validInvokation := v.Spells.ValidateInvokation(orbs)
 		if validInvokation {
-			g.GenerateSpell(username)
+			err := g.GenerateSpell(username)
+			if err != nil {
+				return err
+			}
 			v.UpdateState()
 			scoreUpdate := ScoreUpdate{Score: v.Score, Username: username}
 			for _, v := range scoreChannels {
 				v <- scoreUpdate
 			}
+		}
+		v.mu.invoke.Unlock()
+	}
+	return fmt.Errorf("player %v not in this match", username)
+}
+
+func (g *GameEngine) KeystrokePress(username string, input interface{}) {
+	key := input.(string)
+
+	for currentUsername, player := range g.players {
+		if currentUsername != username {
+			player.Channels.KeystrokeChannel <- key
 		}
 	}
 }

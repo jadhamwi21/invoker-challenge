@@ -6,6 +6,7 @@ import { useAppSelector } from "@/redux/store";
 import WebsocketService, {
 	CountdownMessage,
 	GeneratedSpellMessage,
+	KeystrokeMessage,
 	ScoreMessage,
 } from "@/services/WebsocketService";
 import { EnOrb, EnSpell, InvokationKeysType } from "@/types/invoker.types";
@@ -45,6 +46,7 @@ export const useGame = () => {
 		clientRef.current = client;
 	});
 	const clientKeyDownHandler = (key: InvokationKeysType) => {
+		WebsocketService.send({ event: "keystroke", data: key });
 		if (isInvokeKey(key)) {
 			const { spell, orbs } = clientRef.current;
 			const isValid = validateInvokation(spell, [...orbs]);
@@ -67,6 +69,9 @@ export const useGame = () => {
 	};
 
 	useEffect(() => {
+		WebsocketService.addHandler("keystroke", ({ data }: KeystrokeMessage) => {
+			emitterRef.current.emit("opponent-keypress", data);
+		});
 		WebsocketService.addHandler(
 			"generated_spell",
 			(spell: GeneratedSpellMessage) => {

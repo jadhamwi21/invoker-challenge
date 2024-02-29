@@ -21,3 +21,7 @@ func (c *Countdown) Run(channels []chan interface{}) {
 	}
 	c.val = COUNTDOWN
 }
+
+func NewCountdown() *Countdown {
+	return &Countdown{val: COUNTDOWN}
+}
