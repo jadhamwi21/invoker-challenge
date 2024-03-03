@@ -42,14 +42,21 @@ func (h *Heartbeat) save(timestamp int) error {
 	return nil
 }
 
-func (h *Heartbeat) Run(channels []chan interface{}) {
-	go h.pushHeartbeatToChannels(channels, h.timestamp)
-	for i := 0; i < MATCH_DURATION; i++ {
-		time.Sleep(time.Second)
-		h.bump()
-		go h.pushHeartbeatToChannels(channels, h.timestamp)
-		go h.save(h.timestamp)
+func (h *Heartbeat) Run(ctx context.Context, channels []chan interface{}) {
+
+	h.pushHeartbeatToChannels(channels, h.timestamp)
+	for i := MATCH_DURATION; i >= 0; i-- {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			time.Sleep(time.Second)
+			h.bump()
+			go h.pushHeartbeatToChannels(channels, h.timestamp)
+			go h.save(h.timestamp)
+		}
 	}
+
 }
 
 func NewHeartbeat(redis *redis.Client, hash string) *Heartbeat {

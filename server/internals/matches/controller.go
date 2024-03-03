@@ -52,6 +52,7 @@ func (Controller *MatchesController) CreateMatchHandler(c *fiber.Ctx) error {
 		return err
 	}
 	gameEngine := engine.NewGameEngine(body.SessionID, Controller.Repo.Redis)
+	go gameEngine.Listen()
 	Controller.Engines.AddEngine(&gameEngine)
 	event := sse.NewSSEvent(constants.START_MATCH_EVENT, body.SessionID)
 

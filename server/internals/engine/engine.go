@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/jadhamwi21/invoker-challenge/internals/utils"
@@ -13,14 +14,21 @@ const (
 	MATCH_DURATION = 60
 )
 
+type GameContext struct {
+	context  context.Context
+	cancelFn context.CancelFunc
+}
+
 type GameEngine struct {
 	sessionId    string
 	redisHash    string
 	heartbeat    *Heartbeat
 	countdown    *Countdown
 	players      map[string]*Player
-	running      bool
+	run          chan bool
+	stop         chan bool
 	readyPlayers int
+	ctx          *GameContext
 }
 
 func NewGameEngine(sessionId string, redis *redis.Client) GameEngine {
@@ -30,7 +38,8 @@ func NewGameEngine(sessionId string, redis *redis.Client) GameEngine {
 		redisHash:    hash,
 		heartbeat:    NewHeartbeat(redis, hash),
 		players:      make(map[string]*Player),
-		running:      false,
+		run:          make(chan bool),
+		stop:         make(chan bool),
 		readyPlayers: 0,
 		countdown:    NewCountdown(),
 	}
@@ -61,24 +70,46 @@ func (g *GameEngine) Run() {
 	countdownChannels := g.getSharedChannels(COUNTDOWN_CHANNEL)
 	heartbeatChannels := g.getSharedChannels(HEARTBEAT_CHANNEL)
 	g.countdown.Run(countdownChannels)
-	go g.heartbeat.Run(heartbeatChannels)
+	go g.heartbeat.Run(g.ctx.context, heartbeatChannels)
+	<-g.ctx.context.Done()
 }
 
-func (g *GameEngine) updateRunningState() {
-	g.running = g.readyPlayers == PLAYERS_NUMBER
-	if g.running {
-		go g.Run()
+func (g *GameEngine) Stop() {
+	// Stop
+	fmt.Println("stop")
+}
+
+func (g *GameEngine) createContext() {
+	ctx, cancelFn := context.WithCancel(context.TODO())
+	g.ctx = &GameContext{context: ctx, cancelFn: cancelFn}
+}
+
+func (g *GameEngine) Listen() {
+	for {
+		select {
+		case <-g.run:
+			g.createContext()
+			go g.Run()
+		case <-g.stop:
+			go g.Stop()
+			g.ctx.cancelFn()
+		}
 	}
 }
 
 func (g *GameEngine) TriggerReady() {
 	g.readyPlayers++
-	g.updateRunningState()
+	fmt.Println(g.readyPlayers)
+	if g.readyPlayers == PLAYERS_NUMBER {
+		g.run <- true
+	}
 }
 
 func (g *GameEngine) TriggerUnReady() {
 	g.readyPlayers--
-	g.updateRunningState()
+	if g.readyPlayers != PLAYERS_NUMBER {
+		g.stop <- true
+	}
 }
 
 func (g *GameEngine) JoinPlayer(username string, channels *Channels, redis *redis.Client) {
