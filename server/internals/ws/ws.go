@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/jadhamwi21/invoker-challenge/internals/auth"
 	"github.com/jadhamwi21/invoker-challenge/internals/engine"
+	"github.com/jadhamwi21/invoker-challenge/internals/matches"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -23,7 +24,6 @@ const (
 )
 
 // Client Events
-
 const (
 	READY_EVENT          = "ready"
 	GENERATE_SPELL_EVENT = "generate:spell"
@@ -45,7 +45,7 @@ func NewWebsocketMessage(event string, data any) WebsocketMessage {
 }
 
 func AddWebsocketToApp(app *fiber.App, redis *redis.Client, engines *engine.Engines) {
-	app.Use("/ws/:sessionId", auth.Protected, websocketMiddleware, websocket.New(func(c *websocket.Conn) {
+	app.Use("/ws/:sessionId", auth.Protected, matches.NewMatchMiddleware(redis).MatchMiddleware, websocketMiddleware, websocket.New(func(c *websocket.Conn) {
 		defer c.Close()
 		sessionId := c.Params("sessionId")
 		username := c.Locals("username").(string)
@@ -85,7 +85,14 @@ func AddWebsocketToApp(app *fiber.App, redis *redis.Client, engines *engine.Engi
 		for {
 			_, msg, err := c.ReadMessage()
 			if err != nil {
-				log.Println("Error reading message:", err)
+
+				if websocket.IsUnexpectedCloseError(err) || websocket.IsCloseError(err) {
+
+					go gameEngine.TriggerUnReady()
+				} else {
+
+					log.Println("Error reading message:", err)
+				}
 				return
 			}
 			fmt.Println(msg)

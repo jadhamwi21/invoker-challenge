@@ -75,8 +75,7 @@ func (g *GameEngine) Run() {
 }
 
 func (g *GameEngine) Stop() {
-	// Stop
-	fmt.Println("stop")
+
 }
 
 func (g *GameEngine) createContext() {
@@ -89,6 +88,7 @@ func (g *GameEngine) Listen() {
 		select {
 		case <-g.run:
 			g.createContext()
+			fmt.Println("RUN")
 			go g.Run()
 		case <-g.stop:
 			go g.Stop()
@@ -99,7 +99,7 @@ func (g *GameEngine) Listen() {
 
 func (g *GameEngine) TriggerReady() {
 	g.readyPlayers++
-	fmt.Println(g.readyPlayers)
+	fmt.Println("READY")
 	if g.readyPlayers == PLAYERS_NUMBER {
 		g.run <- true
 	}

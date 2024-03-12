@@ -45,7 +45,7 @@ func (h *Heartbeat) save(timestamp int) error {
 func (h *Heartbeat) Run(ctx context.Context, channels []chan interface{}) {
 
 	h.pushHeartbeatToChannels(channels, h.timestamp)
-	for i := MATCH_DURATION; i >= 0; i-- {
+	for i := h.timestamp - 1; i >= 0; i-- {
 		select {
 		case <-ctx.Done():
 			return

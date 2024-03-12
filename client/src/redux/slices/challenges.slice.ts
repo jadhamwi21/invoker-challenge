@@ -30,7 +30,9 @@ const slice = createSlice({
 		) => {
 			state.duration = duration;
 		},
-		setPendingChallengeId: (state, { payload: id }: PayloadAction<string>) => {
+		setPendingChallengeId: (state, { payload: id, type }: PayloadAction<string>) => {
+			console.log(type);
+
 			state.pendingChallengeId = id;
 		},
 		pushNewChallenge: (

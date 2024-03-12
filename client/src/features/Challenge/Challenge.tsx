@@ -5,7 +5,6 @@ import {
 } from "@/redux/slices/challenges.slice";
 import { selectMatch, setSessionID } from "@/redux/slices/match.slice";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { joinMatch } from "@/redux/thunks/match.thunks";
 import SSEService from "@/services/SSEService";
 import type { Challenge } from "@/types/challenges.types";
 import { isNull } from "lodash";
@@ -30,11 +29,8 @@ const Challenge = (props: Props) => {
 				dispatch(setSessionID(sessionId));
 			}),
 			SSEService.addListener("start:match", (sessionId: string) => {
-				dispatch(joinMatch(sessionId))
-					.unwrap()
-					.then(() => {
-						navigate(`/match/${sessionId}`);
-					});
+				navigate(`/match/${sessionId}`);
+
 			}),
 		];
 		return () =>

@@ -3,6 +3,7 @@ package matches
 import (
 	"context"
 	"encoding/json"
+	"reflect"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jadhamwi21/invoker-challenge/internals/constants"
@@ -36,4 +37,20 @@ func (Repo *MatchesRepo) CreateMatch(ctx context.Context, match *models.NewMatch
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	return nil
+}
+
+func (Repo *MatchesRepo) GetMatchPlayers(sessionId string) ([]string, error) {
+	hash := utils.FormatMatchHash(sessionId)
+	result := Repo.Redis.HGetAll(context.Background(), hash)
+	if result.Err() != nil {
+		return []string{}, result.Err()
+	}
+	matchState := result.Val()
+	delete(matchState, "state")
+	keys := reflect.ValueOf(matchState).MapKeys()
+	players := []string{}
+	for _, v := range keys {
+		players = append(players, v.String())
+	}
+	return players, nil
 }
