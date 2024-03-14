@@ -1,5 +1,5 @@
 // Need to use the React-specific entry point to import createApi
-import { NewMatchRequest } from "@/types/match.types";
+import { MatchType, NewMatchRequest } from "@/types/match.types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const matchApi = createApi({
@@ -16,7 +16,8 @@ export const matchApi = createApi({
 				body: formData,
 			}),
 		}),
+		getMatch: builder.query<MatchType, string>({ query: (arg) => ({ url: `/${arg}`, method: "Get" }) })
 	}),
 });
 
-export const { useNewMatchMutation } = matchApi;
+export const { useNewMatchMutation, useLazyGetMatchQuery, useGetMatchQuery } = matchApi;

@@ -1,7 +1,4 @@
-import WebsocketService, {
-	CountdownMessage,
-} from "@/services/WebsocketService";
-import { useEffect, useState } from "react";
+import { useGameContext } from "../../contexts/GameContext";
 import styles from "./HeartbeatContainer.module.scss";
 
 type Props = {};
@@ -15,12 +12,9 @@ const formatHeartbeat = (seconds: number) => {
 };
 
 const HeartbeatContainer = (props: Props) => {
-	const [heartbeat, setHeartbeat] = useState<null | number>(null);
-	useEffect(() => {
-		WebsocketService.addHandler("heartbeat", (message: CountdownMessage) => {
-			setHeartbeat(message.data);
-		});
-	}, []);
+	const { heartbeat } = useGameContext()
+	console.log(heartbeat);
+
 	return (
 		<div className={styles.container}>
 			{heartbeat !== null && formatHeartbeat(heartbeat)}

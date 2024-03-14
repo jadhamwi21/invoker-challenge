@@ -21,6 +21,7 @@ type Props = {};
 const ChallengeForm = (props: Props) => {
 	const { data, isLoading, isError } = useGetClientFriendsQuery();
 	const initialValues = useAppSelector(selectChallenge);
+	console.log(data);
 
 	const dispatch = useAppDispatch();
 	const [challenge] = useChallengeMutation();

@@ -1,8 +1,5 @@
-import styles from "./InvokerPortrait.module.scss";
-import QuasIcon from "@/assets/images/Quas.png";
-import WexIcon from "@/assets/images/Wex.png";
-import ExortIcon from "@/assets/images/Exort.png";
 import { EnOrb } from "@/types/invoker.types";
+import styles from "./InvokerPortrait.module.scss";
 
 type ClassesReturned = [string, string, string, string];
 

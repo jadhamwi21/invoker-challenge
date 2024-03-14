@@ -45,7 +45,7 @@ func (Controller *MatchesController) CreateMatchHandler(c *fiber.Ctx) error {
 		return err
 	}
 	if session.P1 != client && session.P2 != client {
-		return fiber.NewError(fiber.StatusUnauthorized, "you're unauthorized to start this match")
+		return fiber.NewError(fiber.StatusUnauthorized, "you're unauthorized to create this match")
 	}
 	err = Controller.Repo.CreateMatch(c.Context(), body, client)
 	if err != nil {
@@ -59,4 +59,14 @@ func (Controller *MatchesController) CreateMatchHandler(c *fiber.Ctx) error {
 	go sse.SseService.SendEventToUser(session.P1, event)
 	go sse.SseService.SendEventToUser(session.P2, event)
 	return c.SendStatus(fiber.StatusOK)
+}
+
+func (Controller *MatchesController) GetMatch(c *fiber.Ctx) error {
+
+	sessionId := c.Params("sessionId")
+	match, err := Controller.Repo.GetMatch(sessionId)
+	if err != nil {
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(match)
 }

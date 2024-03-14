@@ -17,7 +17,7 @@ const reducers = persistCombineReducers({
 	key: 'root',
 	version: 1,
 	storage,
-	blacklist: [challengesApi.reducerPath, matchApi.reducerPath, "Challenge", "Match"]
+	blacklist: [challengesApi.reducerPath, matchApi.reducerPath, "Challenge", "Match", friendsApi.reducerPath]
 }, {
 	[authApi.reducerPath]: authApi.reducer,
 	[playersApi.reducerPath]: playersApi.reducer,

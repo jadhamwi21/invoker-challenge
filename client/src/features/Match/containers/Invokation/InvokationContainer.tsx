@@ -23,7 +23,7 @@ const InvokationContainer = ({
 		<div className={styles.container}>
 			<PlayerProperties name={player.name} score={player.score} />
 			<InvokerPortraitContainer orbs={player.orbs} />
-			<Spell spell={player.spell} />
+			<Spell spell={player.current_spell} />
 			<Keys onKeyDown={onKeyDown} readOnly={readOnly} emitter={emitter} />
 		</div>
 	);

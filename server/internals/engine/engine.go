@@ -126,6 +126,7 @@ func (g *GameEngine) GenerateSpell(username string) error {
 		for _, v := range spellChannels {
 			v <- generatedSpell
 		}
+		fmt.Print("Generated", generatedSpell, " for ", username)
 		return nil
 	}
 	return fmt.Errorf("player %v not in this match", username)
@@ -141,11 +142,13 @@ func (g *GameEngine) Invoke(username string, input []interface{}) error {
 		defer v.mu.invoke.Unlock()
 		scoreChannels := g.getSharedChannels(SCORE_CHANNEL)
 		validInvokation := v.Spells.ValidateInvokation(orbs)
+		fmt.Println(validInvokation)
 		if validInvokation {
 			err := g.GenerateSpell(username)
 			if err != nil {
 				return err
 			}
+			v.Score++
 			v.UpdateState()
 			scoreUpdate := ScoreUpdate{Score: v.Score, Username: username}
 			for _, v := range scoreChannels {
@@ -162,7 +165,22 @@ func (g *GameEngine) KeystrokePress(username string, input interface{}) {
 
 	for currentUsername, player := range g.players {
 		if currentUsername != username {
-			player.Channels.KeystrokeChannel <- key
+			go func(player *Player) {
+				player.Channels.KeystrokeChannel <- key
+			}(player)
+		} else {
+			go func(player *Player) {
+
+				orbEnum := ORB_KEY_TO_ENUM[key]
+
+				if len(player.Orbs) == 3 {
+					player.Orbs = append([]int{orbEnum}, player.Orbs[0:2]...)
+				} else {
+					player.Orbs = append([]int{orbEnum}, player.Orbs...)
+				}
+
+				player.UpdateState()
+			}(player)
 		}
 	}
 }

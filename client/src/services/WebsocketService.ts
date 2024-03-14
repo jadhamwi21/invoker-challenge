@@ -41,12 +41,12 @@ export default class WebsocketService {
 		ServerEvent,
 		Record<string, (data: any) => void>
 	> = {
-		heartbeat: {},
-		countdown: {},
-		generated_spell: {},
-		score: {},
-		keystroke: {},
-	};
+			heartbeat: {},
+			countdown: {},
+			generated_spell: {},
+			score: {},
+			keystroke: {},
+		};
 	public static send(message: ClientMessage) {
 		this.ws.send(JSON.stringify(message));
 	}

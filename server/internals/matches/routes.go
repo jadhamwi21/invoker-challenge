@@ -11,11 +11,12 @@ func AddMatchesRoutes(app *fiber.App, redis *redis.Client, engines *engine.Engin
 
 	repo := NewMatchesRepo(redis)
 	controller := NewMatchesController(repo, engines)
-	repo.GetMatchPlayers("04319720-f856-4e9b-a4e9-b553fbe157da")
+
 	router := app.Group("/matches")
 
 	router.Use(auth.Protected)
 
 	router.Post("/", controller.CreateMatchHandler)
+	router.Get("/:sessionId", NewMatchMiddleware(redis).MatchMiddleware, controller.GetMatch)
 
 }

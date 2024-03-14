@@ -13,6 +13,8 @@ const (
 	EXORT
 )
 
+var ORB_KEY_TO_ENUM map[string]int = map[string]int{"Q": QUAS, "W": WEX, "E": EXORT}
+
 // Spells
 const (
 	COLD_SNAP = iota

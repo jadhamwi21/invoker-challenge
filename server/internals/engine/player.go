@@ -22,6 +22,7 @@ type Player struct {
 	Channels *Channels
 	Spells   *PlayerSpells
 	Score    int
+	Orbs     []int
 	redis    *redis.Client
 	Hash     string
 	Username string
@@ -34,12 +35,12 @@ type ScoreUpdate struct {
 }
 
 func NewPlayer(channels *Channels, redis *redis.Client, hash string, username string) *Player {
-	return &Player{Username: username, Channels: channels, Spells: NewPlayerSpells(), redis: redis, Hash: hash, mu: NewPlayerMutex()}
+	return &Player{Username: username, Channels: channels, Spells: NewPlayerSpells(), redis: redis, Hash: hash, mu: NewPlayerMutex(), Orbs: []int{}}
 }
 
 func (p *Player) UpdateState() error {
-	p.Score++
-	newState := models.PlayerState{Invoked: p.Spells.Invoked, Score: p.Score, Last: p.Spells.Last, Current: p.Spells.Current}
+
+	newState := models.PlayerState{Invoked: p.Spells.Invoked, Score: p.Score, Last: p.Spells.Last, Current: p.Spells.Current, Orbs: p.Orbs}
 	data, err := json.Marshal(newState)
 	if err != nil {
 		return err

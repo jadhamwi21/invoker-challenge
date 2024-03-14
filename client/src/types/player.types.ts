@@ -17,3 +17,11 @@ export type PlayerInfo = {
 	friends: string[];
 	matches: unknown[];
 };
+
+export type PlayerState = {
+	current_spell: number;
+	invoked_spells: number[];
+	last_spell: number;
+	score: number;
+	orbs: number[];
+}

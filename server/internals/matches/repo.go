@@ -21,8 +21,8 @@ func NewMatchesRepo(redis *redis.Client) *MatchesRepo {
 }
 
 func getInitialMatchState() ([]byte, []byte, []byte) {
-	clientState, _ := json.Marshal(models.PlayerState{Invoked: []int{}, Last: -1, Score: 0})
-	opponentState, _ := json.Marshal(models.PlayerState{Invoked: []int{}, Last: -1, Score: 0})
+	clientState, _ := json.Marshal(models.PlayerState{Orbs: []int{}, Invoked: []int{}, Last: -1, Score: 0})
+	opponentState, _ := json.Marshal(models.PlayerState{Orbs: []int{}, Invoked: []int{}, Last: -1, Score: 0})
 	matchState, _ := json.Marshal(models.MatchState{Timestamp: 0})
 	return clientState, opponentState, matchState
 }
@@ -53,4 +53,22 @@ func (Repo *MatchesRepo) GetMatchPlayers(sessionId string) ([]string, error) {
 		players = append(players, v.String())
 	}
 	return players, nil
+}
+
+func (Repo *MatchesRepo) GetMatch(sessionId string) (map[string]interface{}, error) {
+	hash := utils.FormatMatchHash(sessionId)
+	result, err := Repo.Redis.HGetAll(context.Background(), hash).Result()
+	if err != nil {
+		return nil, err
+	}
+	response := map[string]interface{}{}
+	for k, v := range result {
+		var data interface{}
+		err := json.Unmarshal([]byte(v), &data)
+		if err == nil {
+			response[k] = data
+		}
+	}
+
+	return response, nil
 }
