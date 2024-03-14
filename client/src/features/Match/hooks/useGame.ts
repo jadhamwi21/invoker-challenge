@@ -81,7 +81,7 @@ export const useGame = () => {
 				.then(() => {
 					getMatch(sessionID).unwrap().then((data) => {
 						WebsocketService.addHandler("keystroke", ({ data }: KeystrokeMessage) => {
-							console.log(data);
+
 
 							emitterRef.current.emit("opponent-keypress", data);
 						});
