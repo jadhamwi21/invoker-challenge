@@ -1,7 +1,7 @@
 import Transition from "@/layouts/Transitions/Transitions";
 import Game from "./components/Game/Game";
 import CountdownContainer from "./containers/Countdown/CountdownContainer";
-import GreetingContainer from "./containers/Greeting/GreetingContainer";
+import EventsContainer from "./containers/Events/EventsContainer";
 import HeartbeatContainer from "./containers/Heartbeat/HeartbeatContainer";
 import { GameContextProvider } from "./contexts/GameContext";
 
@@ -12,7 +12,7 @@ const Match = (props: Props) => {
 		<Transition>
 			<GameContextProvider>
 
-				<GreetingContainer />
+				<EventsContainer />
 				<CountdownContainer />
 				<HeartbeatContainer />
 				<Game />

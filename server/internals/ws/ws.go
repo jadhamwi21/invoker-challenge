@@ -21,6 +21,7 @@ const (
 	COUNTDOWN_EVENT       = "countdown"
 	GENERATED_SPELL_EVENT = "generated_spell"
 	SCORE_EVENT           = "score"
+	PAUSE_EVENT           = "pause"
 )
 
 // Client Events
@@ -78,6 +79,9 @@ func AddWebsocketToApp(app *fiber.App, redis *redis.Client, engines *engine.Engi
 				case keystroke := <-clientChannels.KeystrokeChannel:
 					keystroke = keystroke.(string)
 					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(KEYSTROKE_EVENT, keystroke).Format())
+				case data := <-clientChannels.PauseChannel:
+					fmt.Println("sent pause event")
+					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(PAUSE_EVENT, data).Format())
 				}
 			}
 		}()

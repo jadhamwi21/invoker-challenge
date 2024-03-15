@@ -59,6 +59,8 @@ func (g *GameEngine) getSharedChannels(ev string) []chan interface{} {
 			channels = append(channels, v.Channels.ScoreChannel)
 		case KEYSTROKE_CHANNEL:
 			channels = append(channels, v.Channels.KeystrokeChannel)
+		case PAUSE_CHANNEL:
+			channels = append(channels, v.Channels.PauseChannel)
 		default:
 			fmt.Println("Unknown event:", ev)
 		}
@@ -75,7 +77,13 @@ func (g *GameEngine) Run() {
 }
 
 func (g *GameEngine) Stop() {
-
+	fmt.Println("STOP")
+	pauseChannels := g.getSharedChannels(PAUSE_CHANNEL)
+	fmt.Println(pauseChannels)
+	// Timer Start
+	for _, v := range pauseChannels {
+		v <- true
+	}
 }
 
 func (g *GameEngine) createContext() {
@@ -88,7 +96,7 @@ func (g *GameEngine) Listen() {
 		select {
 		case <-g.run:
 			g.createContext()
-			fmt.Println("RUN")
+
 			go g.Run()
 		case <-g.stop:
 			go g.Stop()
@@ -99,7 +107,7 @@ func (g *GameEngine) Listen() {
 
 func (g *GameEngine) TriggerReady() {
 	g.readyPlayers++
-	fmt.Println("READY")
+
 	if g.readyPlayers == PLAYERS_NUMBER {
 		g.run <- true
 	}
@@ -113,7 +121,13 @@ func (g *GameEngine) TriggerUnReady() {
 }
 
 func (g *GameEngine) JoinPlayer(username string, channels *Channels, redis *redis.Client) {
-	g.players[username] = NewPlayer(channels, redis, g.redisHash, username)
+	if _, ok := g.players[username]; !ok {
+
+		g.players[username] = NewPlayer(channels, redis, g.redisHash, username)
+	} else {
+		g.players[username] = CopyPlayer(g.players[username], channels, redis, g.redisHash, username)
+
+	}
 }
 
 func (g *GameEngine) GenerateSpell(username string) error {
@@ -126,7 +140,7 @@ func (g *GameEngine) GenerateSpell(username string) error {
 		for _, v := range spellChannels {
 			v <- generatedSpell
 		}
-		fmt.Print("Generated", generatedSpell, " for ", username)
+
 		return nil
 	}
 	return fmt.Errorf("player %v not in this match", username)
@@ -145,15 +159,19 @@ func (g *GameEngine) Invoke(username string, input []interface{}) error {
 		fmt.Println(validInvokation)
 		if validInvokation {
 			err := g.GenerateSpell(username)
+			fmt.Println(err)
 			if err != nil {
 				return err
 			}
-			v.Score++
-			v.UpdateState()
-			scoreUpdate := ScoreUpdate{Score: v.Score, Username: username}
-			for _, v := range scoreChannels {
-				v <- scoreUpdate
-			}
+			v.Score = v.Score + 1
+
+			go v.UpdateState()
+			go func() {
+				scoreUpdate := ScoreUpdate{Score: v.Score, Username: username}
+				for _, v := range scoreChannels {
+					v <- scoreUpdate
+				}
+			}()
 		}
 		return nil
 	}

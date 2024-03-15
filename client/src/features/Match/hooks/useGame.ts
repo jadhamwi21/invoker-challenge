@@ -1,5 +1,5 @@
 import { KEY_TO_ORB_MAP } from "@/constants/constants";
-import { isInvokeKey } from "@/features/Playground/helpers/playground.helpers";
+import { isInvokeKey, isOrbKey } from "@/features/Playground/helpers/playground.helpers";
 import { useLazyGetMatchQuery } from "@/redux/apis/match.api";
 import { selectPlayer } from "@/redux/slices/player.slice";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
@@ -49,8 +49,9 @@ export const useGame = () => {
 		clientRef.current = client;
 	});
 	const clientKeyDownHandler = (key: InvokationKeysType) => {
-		WebsocketService.send({ event: "keystroke", data: key });
-		console.log("Emitted", key);
+		if (isOrbKey(key))
+			WebsocketService.send({ event: "keystroke", data: key });
+
 
 		if (isInvokeKey(key)) {
 			const { current_spell, orbs } = clientRef.current;
@@ -72,6 +73,7 @@ export const useGame = () => {
 			});
 		}
 	};
+	const [paused, setPaused] = useState(false);
 
 	useEffect(() => {
 
@@ -82,9 +84,20 @@ export const useGame = () => {
 					getMatch(sessionID).unwrap().then((data) => {
 						WebsocketService.addHandler("keystroke", ({ data }: KeystrokeMessage) => {
 
+							setOpponent((prev) => {
+								const newOrbs = [...prev.orbs];
+								if (newOrbs.length === 3) {
+									newOrbs.pop();
+								}
 
+								newOrbs.unshift(KEY_TO_ORB_MAP[data]);
+								return { ...prev, orbs: newOrbs };
+							});
 							emitterRef.current.emit("opponent-keypress", data);
 						});
+						WebsocketService.addHandler("pause", () => {
+							setPaused(true);
+						})
 						WebsocketService.addHandler(
 							"generated_spell",
 							(spell: GeneratedSpellMessage) => {
@@ -102,6 +115,7 @@ export const useGame = () => {
 							}
 						);
 						WebsocketService.addHandler("countdown", (countdown: CountdownMessage) => {
+							setPaused(false);
 							if (countdown.data === 0) {
 								WebsocketService.send({ event: "generate:spell" });
 							}
@@ -127,12 +141,8 @@ export const useGame = () => {
 							const value = _.omit(data[k], ["current_spell"]);
 							if (k === username) {
 								setClient({ ...client, ...value, name: k })
-
 							} else {
-
-
 								setOpponent({ ...opponent, ...value, name: k })
-
 							}
 						})
 					}).then(() => {
@@ -150,6 +160,6 @@ export const useGame = () => {
 		opponent,
 		emitter: emitterRef.current,
 		clientKeyDownHandler, heartbeat,
-		greeted
+		greeted, paused
 	};
 };

@@ -1,5 +1,5 @@
 import { store } from "@/redux/store";
-import { EnOrb } from "@/types/invoker.types";
+import { EnOrb, OrbKeyType } from "@/types/invoker.types";
 import { set, uniqueId } from "lodash";
 
 type ServerEvent =
@@ -7,10 +7,11 @@ type ServerEvent =
 	| "countdown"
 	| "generated_spell"
 	| "score"
+	| "pause"
 	| "keystroke";
 type ClientEvent = "ready" | "generate:spell" | "invoke" | "keystroke";
 
-export type KeystrokeMessage = Message<"keystroke", string>;
+export type KeystrokeMessage = Message<"keystroke", OrbKeyType>;
 type EventType = ServerEvent | ClientEvent;
 
 type Message<T extends EventType, K = unknown> = { event: T; data?: K };
@@ -46,6 +47,7 @@ export default class WebsocketService {
 			generated_spell: {},
 			score: {},
 			keystroke: {},
+			pause: {}
 		};
 	public static send(message: ClientMessage) {
 		this.ws.send(JSON.stringify(message));
@@ -73,6 +75,8 @@ export default class WebsocketService {
 
 			this.ws.onmessage = (ev) => {
 				const data: Message<ServerEvent> = JSON.parse(ev.data);
+				console.log(data);
+
 				if (this.handlersMap[data.event]) {
 					Object.values(this.handlersMap[data.event]).forEach((cb) => cb(data));
 				}
