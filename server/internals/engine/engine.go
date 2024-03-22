@@ -29,6 +29,7 @@ type GameEngine struct {
 	stop         chan bool
 	readyPlayers int
 	ctx          *GameContext
+	launch       bool
 }
 
 func NewGameEngine(sessionId string, redis *redis.Client) GameEngine {
@@ -42,6 +43,7 @@ func NewGameEngine(sessionId string, redis *redis.Client) GameEngine {
 		stop:         make(chan bool),
 		readyPlayers: 0,
 		countdown:    NewCountdown(),
+		launch:       true,
 	}
 }
 
@@ -96,7 +98,6 @@ func (g *GameEngine) Listen() {
 		select {
 		case <-g.run:
 			g.createContext()
-
 			go g.Run()
 		case <-g.stop:
 			go g.Stop()

@@ -11,22 +11,25 @@ import styles from "./CountdownContainer.module.scss";
 type Props = {};
 
 const CountdownContainer = (props: Props) => {
-	const [countdown, setCountdown] = useState<number | null>(null);
-	const [isStartup, setIsStartup] = useState(true);
+	const [countdown, setCountdown] = useState<{
+		message: string;
+		countdown: number;
+	} | null>(null);
+
 	useEffect(() => {
 		const cleanup = WebsocketService.addHandler(
 			"countdown",
 			(message: CountdownMessage) => {
-				setCountdown(message.data);
+				setCountdown({
+					countdown: message.data.countdown,
+					message: message.data.launch
+						? "Game is starting in"
+						: "Game is resumed in",
+				});
 			}
 		);
 		return cleanup;
 	}, []);
-	useEffect(() => {
-		if (countdown === 0) {
-			setIsStartup(false);
-		}
-	}, [countdown]);
 	const [springs] = useSpring(
 		() => ({
 			from: { opacity: 0.5, scale: 0.7 },
@@ -37,19 +40,22 @@ const CountdownContainer = (props: Props) => {
 	);
 	return (
 		<>
-			<Modal opened={Boolean(countdown)} closeBehavior="none">
-				<div className={styles.wrapper}>
-					<p className={styles.text}>
-						{isStartup
-							? `Your match is starting in`
-							: `Your match is resumed in`}
-					</p>
-					<animated.p style={springs} className={styles.countdown}>
-						{countdown}
-					</animated.p>
-				</div>
+			<Modal
+				opened={Boolean(countdown) && countdown.countdown !== 0}
+				closeBehavior="none"
+			>
+				{countdown && (
+					<div className={styles.wrapper}>
+						<p className={styles.text}>{countdown.message}</p>
+						<animated.p style={springs} className={styles.countdown}>
+							{countdown.countdown}
+						</animated.p>
+					</div>
+				)}
 			</Modal>
-			<Audio src={CountdownFinishAudio} play={countdown === 0} />
+			{countdown && (
+				<Audio src={CountdownFinishAudio} play={countdown.countdown === 0} />
+			)}
 		</>
 	);
 };

@@ -7,6 +7,7 @@ import { joinMatch } from "@/redux/thunks/match.thunks";
 import WebsocketService, {
 	CountdownMessage,
 	GeneratedSpellMessage,
+	HeartbeatMessage,
 	KeystrokeMessage,
 	ScoreMessage,
 } from "@/services/WebsocketService";
@@ -31,7 +32,7 @@ export const useGame = () => {
 	const [getMatch] = useLazyGetMatchQuery()
 
 
-	const [greeted, setGreeted] = useState(false);
+
 	const dispatch = useAppDispatch();
 	const emitterRef = useRef(new EventEmitter());
 	const [heartbeat, setHeartbeat] = useState<number | null>(null);
@@ -116,7 +117,7 @@ export const useGame = () => {
 						);
 						WebsocketService.addHandler("countdown", (countdown: CountdownMessage) => {
 							setPaused(false);
-							if (countdown.data === 0) {
+							if (countdown.data.countdown === 0) {
 								WebsocketService.send({ event: "generate:spell" });
 							}
 						});
@@ -133,8 +134,8 @@ export const useGame = () => {
 								}));
 							}
 						});
-						WebsocketService.addHandler("heartbeat", (message: CountdownMessage) => {
-							setHeartbeat(message.data);
+						WebsocketService.addHandler("heartbeat", (message: HeartbeatMessage) => {
+							setHeartbeat(+message.data);
 						});
 						setHeartbeat(data.state.timestamp)
 						Object.keys(_.omit(data, "state")).forEach((k) => {
@@ -146,10 +147,8 @@ export const useGame = () => {
 							}
 						})
 					}).then(() => {
-						setTimeout(() => {
-							WebsocketService.send({ event: "ready" });
-							setGreeted(true);
-						}, 1000);
+						WebsocketService.send({ event: "ready" });
+
 					})
 				});
 		})();
@@ -160,6 +159,6 @@ export const useGame = () => {
 		opponent,
 		emitter: emitterRef.current,
 		clientKeyDownHandler, heartbeat,
-		greeted, paused
+		paused
 	};
 };

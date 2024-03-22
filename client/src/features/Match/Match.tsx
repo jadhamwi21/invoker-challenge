@@ -11,7 +11,6 @@ const Match = (props: Props) => {
 	return (
 		<Transition>
 			<GameContextProvider>
-
 				<EventsContainer />
 				<CountdownContainer />
 				<HeartbeatContainer />

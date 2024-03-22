@@ -67,9 +67,9 @@ func AddWebsocketToApp(app *fiber.App, redis *redis.Client, engines *engine.Engi
 				case heartbeat := <-clientChannels.HeartbeatChannel:
 					heartbeat = heartbeat.(int)
 					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(HEARTBEAT_EVENT, heartbeat).Format())
-				case countdown := <-clientChannels.CountdownChannel:
-					countdown = countdown.(int)
-					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(COUNTDOWN_EVENT, countdown).Format())
+				case data := <-clientChannels.CountdownChannel:
+					data = data.(map[string]interface{})
+					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(COUNTDOWN_EVENT, data).Format())
 				case spell := <-clientChannels.SpellChannel:
 					spell = spell.(engine.GeneratedSpell)
 					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(GENERATED_SPELL_EVENT, spell).Format())
@@ -80,7 +80,6 @@ func AddWebsocketToApp(app *fiber.App, redis *redis.Client, engines *engine.Engi
 					keystroke = keystroke.(string)
 					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(KEYSTROKE_EVENT, keystroke).Format())
 				case data := <-clientChannels.PauseChannel:
-					fmt.Println("sent pause event")
 					c.WriteMessage(websocket.TextMessage, NewWebsocketMessage(PAUSE_EVENT, data).Format())
 				}
 			}
