@@ -17,6 +17,7 @@ type EventType = ServerEvent | ClientEvent;
 type Message<T extends EventType, K = unknown> = { event: T; data?: K };
 
 export type HeartbeatMessage = Message<"heartbeat", string>;
+export type PauseMessage = Message<"pause", { pause: boolean; timer: number }>;
 export type CountdownMessage = Message<"countdown", { launch: boolean, countdown: number }>;
 export type ScoreMessage = Message<
 	"score",

@@ -42,7 +42,7 @@ func (h *Heartbeat) save(timestamp int) error {
 	return nil
 }
 
-func (h *Heartbeat) Run(ctx context.Context, channels []chan interface{}) {
+func (h *Heartbeat) Run(ctx context.Context, channels []chan interface{}, signal chan bool) {
 
 	h.pushHeartbeatToChannels(channels, h.timestamp)
 	for i := h.timestamp - 1; i >= 0; i-- {
@@ -56,7 +56,7 @@ func (h *Heartbeat) Run(ctx context.Context, channels []chan interface{}) {
 			go h.save(h.timestamp)
 		}
 	}
-
+	signal <- true
 }
 
 func NewHeartbeat(redis *redis.Client, hash string) *Heartbeat {

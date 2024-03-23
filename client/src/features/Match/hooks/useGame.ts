@@ -9,6 +9,7 @@ import WebsocketService, {
 	GeneratedSpellMessage,
 	HeartbeatMessage,
 	KeystrokeMessage,
+	PauseMessage,
 	ScoreMessage,
 } from "@/services/WebsocketService";
 import { EnSpell, InvokationKeysType } from "@/types/invoker.types";
@@ -74,7 +75,7 @@ export const useGame = () => {
 			});
 		}
 	};
-	const [paused, setPaused] = useState(false);
+	const [pause, setPause] = useState<{ show: boolean; timer: number }>({ show: false, timer: 0 });
 
 	useEffect(() => {
 
@@ -96,8 +97,8 @@ export const useGame = () => {
 							});
 							emitterRef.current.emit("opponent-keypress", data);
 						});
-						WebsocketService.addHandler("pause", () => {
-							setPaused(true);
+						WebsocketService.addHandler("pause", (message: PauseMessage) => {
+							setPause({ show: message.data.pause, timer: message.data.timer });
 						})
 						WebsocketService.addHandler(
 							"generated_spell",
@@ -116,7 +117,7 @@ export const useGame = () => {
 							}
 						);
 						WebsocketService.addHandler("countdown", (countdown: CountdownMessage) => {
-							setPaused(false);
+
 							if (countdown.data.countdown === 0) {
 								WebsocketService.send({ event: "generate:spell" });
 							}
@@ -159,6 +160,6 @@ export const useGame = () => {
 		opponent,
 		emitter: emitterRef.current,
 		clientKeyDownHandler, heartbeat,
-		paused
+		pause
 	};
 };

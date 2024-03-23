@@ -24,12 +24,15 @@ type GameEngine struct {
 	redisHash    string
 	heartbeat    *Heartbeat
 	countdown    *Countdown
+	pause        *Pause
 	players      map[string]*Player
 	run          chan bool
 	stop         chan bool
 	readyPlayers int
 	ctx          *GameContext
 	launch       bool
+	paused       bool
+	over         chan bool
 }
 
 func NewGameEngine(sessionId string, redis *redis.Client) GameEngine {
@@ -41,9 +44,12 @@ func NewGameEngine(sessionId string, redis *redis.Client) GameEngine {
 		players:      make(map[string]*Player),
 		run:          make(chan bool),
 		stop:         make(chan bool),
+		over:         make(chan bool),
 		readyPlayers: 0,
 		countdown:    NewCountdown(),
-		launch:       true,
+		launch:       true, ctx: nil,
+		paused: false,
+		pause:  &Pause{},
 	}
 }
 
@@ -74,18 +80,15 @@ func (g *GameEngine) Run() {
 	countdownChannels := g.getSharedChannels(COUNTDOWN_CHANNEL)
 	heartbeatChannels := g.getSharedChannels(HEARTBEAT_CHANNEL)
 	g.countdown.Run(countdownChannels)
-	go g.heartbeat.Run(g.ctx.context, heartbeatChannels)
-	<-g.ctx.context.Done()
+	go g.heartbeat.Run(g.ctx.context, heartbeatChannels, g.over)
+
 }
 
 func (g *GameEngine) Stop() {
-	fmt.Println("STOP")
-	pauseChannels := g.getSharedChannels(PAUSE_CHANNEL)
-	fmt.Println(pauseChannels)
-	// Timer Start
-	for _, v := range pauseChannels {
-		v <- true
-	}
+	g.paused = true
+	pauseChannel := g.getSharedChannels(PAUSE_CHANNEL)[0]
+	go g.pause.Run(g.ctx.context, pauseChannel, g.run)
+
 }
 
 func (g *GameEngine) createContext() {
@@ -93,15 +96,52 @@ func (g *GameEngine) createContext() {
 	g.ctx = &GameContext{context: ctx, cancelFn: cancelFn}
 }
 
-func (g *GameEngine) Listen() {
+func (g *GameEngine) GameOver() {
+	i := 0
+	var p1, p2 *Player
+	for _, player := range g.players {
+		if i == 0 {
+			p1 = player
+		} else if i == 1 {
+			p2 = player
+		}
+		i++
+	}
+	var winner string = ""
+	var score int = 0
+	if p1.Score > p2.Score {
+		winner = p1.Username
+		score = p1.Score
+	}
+	if p1.Score < p2.Score {
+		winner = p2.Username
+		score = p2.Score
+	}
+	if winner == "" && score == 0 {
+		fmt.Println("Tie")
+	} else {
+		fmt.Printf("The winner is [%v] with score [%v]", winner, score)
+	}
+}
+
+func (g *GameEngine) Loop() {
 	for {
 		select {
 		case <-g.run:
+			if g.ctx != nil {
+				g.ctx.cancelFn()
+			}
 			g.createContext()
+			if g.paused {
+				<-g.run
+			}
 			go g.Run()
 		case <-g.stop:
-			go g.Stop()
 			g.ctx.cancelFn()
+			g.createContext()
+			go g.Stop()
+		case <-g.over:
+			return
 		}
 	}
 }

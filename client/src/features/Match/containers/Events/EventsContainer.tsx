@@ -4,11 +4,11 @@ import { useGameContext } from "../../contexts/GameContext";
 type Props = {};
 
 const EventsContainer = (props: Props) => {
-	const { paused } = useGameContext();
+	const { pause } = useGameContext();
 
 	return (
-		<Modal opened={paused} closeBehavior="none">
-			{paused ? <Pause /> : null}
+		<Modal opened={pause.show} closeBehavior="none">
+			{pause.show ? <Pause /> : null}
 		</Modal>
 	);
 };
