@@ -1,5 +1,6 @@
 import { useDashboard } from "@/hooks/useDashboard";
 import SSEService from "@/services/SSEService";
+import { axiosInstance } from "@/utils/utils";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 export const useDashboardLoader = () => {
@@ -11,6 +12,10 @@ export const useDashboardLoader = () => {
 			SSEService.addListener("notification", (data: string) => {
 				toast.success(data);
 			});
+			axiosInstance.get("/matches", { withCredentials: true }).then(({ data }) => {
+				console.log(data);
+
+			})
 
 			setTimeout(() => {
 				setLoading(false);

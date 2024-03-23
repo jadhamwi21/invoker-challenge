@@ -11,7 +11,7 @@ import (
 const (
 	PLAYERS_NUMBER = 2
 	COUNTDOWN      = 3
-	MATCH_DURATION = 60
+	MATCH_DURATION = 5
 )
 
 type GameContext struct {

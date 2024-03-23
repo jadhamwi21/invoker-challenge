@@ -51,7 +51,7 @@ func main() {
 	friends.AddFriendsRoutes(app, db)
 	notifications.AddNotificationsRoutes(app, db)
 	challenges.AddChallengesRoutes(app, redis)
-	matches.AddMatchesRoutes(app, redis, engines)
+	matches.AddMatchesRoutes(app, redis, db, engines)
 	ws.AddWebsocketToApp(app, redis, engines)
 	sse.SetupSSE(app)
 

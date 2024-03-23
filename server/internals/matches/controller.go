@@ -1,6 +1,7 @@
 package matches
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/jadhamwi21/invoker-challenge/internals/models"
 	"github.com/jadhamwi21/invoker-challenge/internals/sse"
 	"github.com/jadhamwi21/invoker-challenge/internals/validation"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type MatchesController struct {
@@ -55,6 +57,22 @@ func (Controller *MatchesController) CreateMatchHandler(c *fiber.Ctx) error {
 	go func() {
 		gameEngine.Loop()
 		gameEngine.GameOver()
+		matchObjectId, err := Controller.Repo.SaveMatch(body.SessionID)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		playersCollection := Controller.Repo.Database.Collection("players")
+		filter := bson.M{
+			"$or": []bson.M{
+				{"username": session.P1},
+				{"username": session.P2},
+			},
+		}
+		fmt.Println(filter)
+
+		playersCollection.UpdateMany(context.Background(), filter, bson.M{"$push": bson.M{"matches": matchObjectId}})
 	}()
 	Controller.Engines.AddEngine(&gameEngine)
 	event := sse.NewSSEvent(constants.START_MATCH_EVENT, body.SessionID)
@@ -72,4 +90,19 @@ func (Controller *MatchesController) GetMatch(c *fiber.Ctx) error {
 		return err
 	}
 	return c.Status(fiber.StatusOK).JSON(match)
+}
+
+func (Controller *MatchesController) GetMatches(c *fiber.Ctx) error {
+	var username string
+	params := c.Params("username")
+	if params != "" {
+		username = params
+	} else {
+		username = c.Locals("username").(string)
+	}
+	matches, err := Controller.Repo.GetMatches(username)
+	if err != nil {
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(matches)
 }

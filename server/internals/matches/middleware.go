@@ -25,6 +25,6 @@ func (mw *match_middleware) MatchMiddleware(c *fiber.Ctx) error {
 }
 
 func NewMatchMiddleware(redis *redis.Client) *match_middleware {
-	repo := NewMatchesRepo(redis)
+	repo := NewMatchesRepo(redis, nil)
 	return &match_middleware{Repo: repo}
 }

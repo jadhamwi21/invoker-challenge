@@ -3,6 +3,7 @@ package matches
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"reflect"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,14 +11,18 @@ import (
 	"github.com/jadhamwi21/invoker-challenge/internals/models"
 	"github.com/jadhamwi21/invoker-challenge/internals/utils"
 	"github.com/redis/go-redis/v9"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type MatchesRepo struct {
-	Redis *redis.Client
+	Redis    *redis.Client
+	Database *mongo.Database
 }
 
-func NewMatchesRepo(redis *redis.Client) *MatchesRepo {
-	return &MatchesRepo{Redis: redis}
+func NewMatchesRepo(redis *redis.Client, database *mongo.Database) *MatchesRepo {
+	return &MatchesRepo{Redis: redis, Database: database}
 }
 
 func getInitialMatchState() ([]byte, []byte, []byte) {
@@ -71,4 +76,33 @@ func (Repo *MatchesRepo) GetMatch(sessionId string) (map[string]interface{}, err
 	}
 
 	return response, nil
+}
+
+func (Repo *MatchesRepo) GetMatches(username string) (interface{}, error) {
+	// matchesCollection := Repo.Database.Collection("matches")
+	playersCollection := Repo.Database.Collection("players")
+	filter := bson.M{"username": username}
+	res := &models.BasePlayer{}
+	err := playersCollection.FindOne(context.Background(), filter).Decode(res)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(res.Matches)
+
+	return res.Matches, nil
+}
+
+func (Repo *MatchesRepo) SaveMatch(sessionId string) (primitive.ObjectID, error) {
+	match, err := Repo.GetMatch(sessionId)
+	if err != nil {
+		return primitive.NilObjectID, err
+	}
+	fmt.Println(match)
+	matchesCollection := Repo.Database.Collection("matches")
+	fmt.Println(matchesCollection)
+	res, err := matchesCollection.InsertOne(context.Background(), match)
+	if err != nil {
+		return primitive.NilObjectID, err
+	}
+	return res.InsertedID.(primitive.ObjectID), nil
 }

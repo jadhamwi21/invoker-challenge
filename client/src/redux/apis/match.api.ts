@@ -16,7 +16,8 @@ export const matchApi = createApi({
 				body: formData,
 			}),
 		}),
-		getMatch: builder.query<MatchType, string>({ query: (arg) => ({ url: `/${arg}`, method: "Get" }) })
+		getMatch: builder.query<MatchType, string>({ query: (arg) => ({ url: `/session/${arg}`, method: "Get" }) }),
+
 	}),
 });
 
